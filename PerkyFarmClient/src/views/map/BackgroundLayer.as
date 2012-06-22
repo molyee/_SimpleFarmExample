@@ -21,7 +21,7 @@ package views.map
 		protected var _texture:BitmapData;
 		
 		// объект отрисовки фона
-		protected var _background:Shape;
+		protected var _background:Bitmap;
 		
 		// ширина заливки
 		protected var _width:Number;
@@ -38,7 +38,7 @@ package views.map
 		public function BackgroundLayer(holder:DisplayObjectContainer, texture:BitmapData = null, width:Number = 0, height:Number = 0) 
 		{
 			_holder = holder;
-			_background = new Shape();
+			_background = new Bitmap();
 			if (!texture)
 				texture = (new DEFAULT_TEXTURE_CLASS() as Bitmap).bitmapData;
 			setTexture(texture);
@@ -56,6 +56,8 @@ package views.map
 		// обновление размера фоновой заливки
 		public function setSize(width:Number, height:Number):void
 		{
+			if (_width == width && _height == height)
+				return;
 			_width = width;
 			_height = height;
 			if (_showing)
@@ -89,10 +91,15 @@ package views.map
 		// обновление текстуры фона
 		protected function update():void
 		{
-			_background.graphics.clear();
-			_background.graphics.beginBitmapFill(_texture);
-			_background.graphics.drawRect(0, 0, _width, _height);
-			_background.graphics.endFill();
+			var shape:Shape = new Shape();
+			shape.graphics.clear();
+			shape.graphics.beginBitmapFill(_texture);
+			shape.graphics.drawRect(0, 0, _width, _height);
+			shape.graphics.endFill();
+			
+			var bitmapData:BitmapData = new BitmapData(_width, _height, false, 0xffffff);
+			bitmapData.draw(shape);
+			_background.bitmapData = bitmapData;
 		}
 	}
 

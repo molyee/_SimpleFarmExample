@@ -9,17 +9,17 @@ package display.utils
 	 */
 	public class Isometric 
 	{
-		public static const CELL_WIDTH:int = 100;
-		public static const CELL_HEIGHT:int = 50;
+		public static const CELL_WIDTH:Number = 100;
+		public static const CELL_HEIGHT:Number = 50;
 		
-		public static var MAP_WIDTH:int = 4096;
-		public static var MAP_HEIGHT:int = 2048;
+		public static var MAP_WIDTH:Number = 4096;
+		public static var MAP_HEIGHT:Number = 2048;
 		
-		public static var X0:int;
-		public static var Y0:int;
+		public static var X0:Number;
+		public static var Y0:Number;
 		
-		public static var WIDTH:int = 30;
-		public static var HEIGHT:int = 30;
+		public static var WIDTH:Number = 30;
+		public static var HEIGHT:Number = 30;
 		
 		public static function normalToIsometric(xpos:Number, ypos:Number):Point
 		{
