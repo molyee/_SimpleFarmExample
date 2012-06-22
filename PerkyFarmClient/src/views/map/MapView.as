@@ -1,16 +1,12 @@
 package views.map
 {
 	import display.utils.Isometric;
-	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	
 	public class MapView extends Sprite
 	{
-		[Embed(source="../../../media/grass_texture.jpg")]
-		protected var BackTexture:Class;
-		
-		protected var backgroundLayer:Sprite;
+		protected var backgroundLayer:BackgroundLayer;
 		protected var tilesLayer:Sprite;
 		protected var itemsLayer:Sprite;
 		
@@ -21,9 +17,7 @@ package views.map
 			Isometric.MAP_WIDTH = width;
 			Isometric.MAP_HEIGHT = height;
 			
-			var texture:BitmapData = new BackTexture() as BitmapData;
-			backgroundLayer = new Sprite();
-			//backgroundLayer.graphics.beginBitmapFill(
+			backgroundLayer = new BackgroundLayer(this, null, width, height);
 			
 			tilesLayer = new Sprite();
 			itemsLayer = new Sprite();
@@ -34,13 +28,13 @@ package views.map
 		protected function addedToStageHandler(event:Event = null):void
 		{
 			this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
-			
+			backgroundLayer.show();
 		}
 		
 		protected function removedFromStage(event:Event):void
 		{
 			this.removeEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
-			
+			backgroundLayer.hide();
 		}
 		
 		public function resize(width:Number, height:Number):void
