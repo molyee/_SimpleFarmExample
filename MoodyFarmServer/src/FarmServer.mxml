@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="1010" height="610"
+					   initialize="init(event)">
+	<fx:Declarations>
+		<!-- Разместить невизуальные элементы (например, службы или объекты значений) -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import controllers.ServerConnectionController;
+			
+			import data.DBConnection;
+			
+			import logging.Logger;
+			
+			import models.Model;
+			
+			
+			public static const DEBUG:Boolean = true; // триггер состояния
+			
+			public static var HOST:String = null; // ip-адрес сервера
+			public static var PORT:int = 10002; // прослушиваемый порт
+			
+			private var server:ServerSocket;
+			
+			[Bindable]
+			private var controller:ServerConnectionController;
+			
+			private var dbConnection:DBConnection;
+			
+			private var model:Model;
+			
+			public function init(event:Event):void
+			{
+				// добавление финализатора серверного приложения
+				nativeApplication.addEventListener(Event.EXITING, exitingHandler, false, 0, true);
+				
+				if (DEBUG)
+					Logger.instance.addListener(logHandler);
+				
+				// создание подключения к базе данных
+				dbConnection = new DBConnection();
+				
+				// создание контролирующего сервиса
+				controller = new ServerConnectionController(dbConnection);
+				
+				// инициализация игровой модели
+				model = Model.instance;
+				model.addEventListener(Event.INIT, modelInitHandler);
+				model.init(controller);
+			}
+			
+			// создание нового слушающего tcp-сервера
+			private function createServer():void
+			{
+				if (server)	dropServer();
+				server = new ServerSocket();
+				server.addEventListener(Event.CLOSE, closeServerHandler);
+				server.addEventListener(ServerSocketConnectEvent.CONNECT, clientConnectionHandler);
+				server.bind(PORT, HOST);
+				server.listen();
+				var host:String = HOST || "localhost";
+				Logger.instance.writeLine("Listen TCP: " + host + ":" + PORT);
+			}
+			
+			// отключение tcp-сервера
+			private function dropServer():void
+			{
+				if (!server) return;
+				server.removeEventListener(Event.CLOSE, closeServerHandler);
+				server.removeEventListener(ServerSocketConnectEvent.CONNECT, clientConnectionHandler);
+				server.close();
+				server = null;
+			}
+			
+			// запуск работы сервера
+			private function modelInitHandler(event:Event):void
+			{
+				Logger.instance.writeLine("Model initialized");
+				controller.enabled = true;
+				// создание сервера
+				createServer();
+			}
+			
+			// обработчик события добавления нового клиента
+			private function clientConnectionHandler(event:ServerSocketConnectEvent):void
+			{
+				var socket:Socket = event.socket;
+				event.stopImmediatePropagation();
+				Logger.instance.writeLine("Client connected " + socket.remoteAddress + ":" + socket.remotePort);
+				controller.addClient(socket);
+			}
+			
+			// обработчик события закрытия сервера
+			private function closeServerHandler(event:Event):void
+			{
+				Logger.instance.writeLine("ServerSocket closed");
+			}
+			
+			// обработчик события завершения работы приложения (финализатор)
+			private function exitingHandler(event:Event):void
+			{
+				Logger.instance.writeLine("Finalize application");
+				dbConnection.finalize();
+				dropServer();
+			}
+			
+			// получение времени сервера
+			public function getServerTime():int
+			{
+				return getTimer();
+			}
+			
+			// обработчик добавления сообщения в лог
+			public function logHandler(message:String):void
+			{
+				logArea.appendText(message);
+				if (logArea.heightInLines < 30)
+					return;
+				var text:String = logArea.text;
+				logArea.text = text.split("\n", 1)[1];
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Panel x="10" y="10" width="540" height="560" title="users">
+		<mx:DataGrid x="10" y="10" width="520" height="510">
+			<mx:dataProvider>{controller.clients}</mx:dataProvider>
+			<mx:columns>
+				<mx:DataGridColumn headerText="IPV4" dataField="ipv4" width="80"/>
+				<mx:DataGridColumn headerText="UserID" dataField="id" width="50"/>
+				<mx:DataGridColumn headerText="Logged" dataField="logged" width="50"/>
+				<mx:DataGridColumn headerText="Items" dataField="numItems" width="50"/>
+				<mx:DataGridColumn headerText="Inventory" dataField="numInventoryItems" width="50"/>
+				<mx:DataGridColumn headerText="Delete" width="100"/>
+			</mx:columns>
+		</mx:DataGrid>
+	</s:Panel>
+	<s:TextArea x="656" y="10" width="344" height="560" id="logArea" editable="false"/>
+</s:WindowedApplication>
