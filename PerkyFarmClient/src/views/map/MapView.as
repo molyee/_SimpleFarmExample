@@ -26,6 +26,12 @@ package views.map
 		protected var _dragging:Boolean = false; // состояние перетаскивания карты
 		protected var _dragEnabled:Boolean = true; // триггер доступности функции перемещения карты с помощью мыши
 		
+		// объекта на карте, на который следует фокусироваться
+		protected var _target:Point; 
+		// конечная точка перемещения карты для установки фокуса
+		protected var _targetingX:Number;
+		protected var _targetingY:Number; 
+		
 		// -- конструктор
 		public function MapView(width:Number, height:Number)
 		{
@@ -33,6 +39,8 @@ package views.map
 			
 			Isometric.MAP_WIDTH = width;
 			Isometric.MAP_HEIGHT = height;
+			
+			_target = new Point();
 			
 			backgroundLayer = new BackgroundLayer(this, null, width, height);
 			
@@ -46,7 +54,13 @@ package views.map
 		protected function addedToStageHandler(event:Event = null):void
 		{
 			this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
+			
 			resize(stage.stageWidth, stage.stageHeight);
+			
+			_target.x = Isometric.MAP_WIDTH / 2;
+			_target.y = Isometric.MAP_HEIGHT / 2;
+			center();
+			
 			backgroundLayer.show();
 			
 			this.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
@@ -110,16 +124,16 @@ package views.map
 			trace("clicked");
 		}
 		
-		// центрирование карты вокруг точки на карте
-		public function centerOn(xpos:Number, ypos:Number):void
+		// центрирование положения карты вокруг фокусной точки
+		public function center():void
 		{
-			var _x:Number = xpos + (_stageWidth) / 2 - backgroundLayer.width;
-			var _y:Number = ypos + (_stageHeight) / 2 - backgroundLayer.height;
-			moveTo(_x, _y);
+			_targetingX = _target.x + _stageWidth / 2 - backgroundLayer.width;
+			_targetingY = _target.y + _stageHeight / 2 - backgroundLayer.height;
+			moveTo(_targetingX, _targetingY, false);
 		}
 		
 		// перемещение карты на заданную позицию
-		protected function moveTo(xpos:Number, ypos:Number):void
+		protected function moveTo(xpos:Number, ypos:Number, updateTargetPosition:Boolean = true):void
 		{
 			if (xpos > 0) xpos = 0;
 			if (ypos > 0) ypos = 0;
@@ -127,6 +141,10 @@ package views.map
 				xpos = _stageWidth - backgroundLayer.width;
 			if (ypos < _stageHeight - backgroundLayer.height)
 				ypos = _stageHeight - backgroundLayer.height;
+			if (updateTargetPosition) {
+				_target.x = xpos + backgroundLayer.width - _stageWidth / 2;
+				_target.y = ypos + backgroundLayer.height - _stageHeight / 2;
+			}
 			x = xpos;
 			y = ypos;
 		}
@@ -141,8 +159,8 @@ package views.map
 			var backHeight:Number = Math.max(Isometric.MAP_HEIGHT, _stageHeight);
 			backgroundLayer.setSize(backWidth, backHeight);
 			
-			// фокусируем на центральной точке карты (можно на каком-либо объекте)
-			centerOn(Isometric.MAP_WIDTH / 2, Isometric.MAP_HEIGHT / 2); 
+			// фокусируем на фокусной точке карты
+			center(); 
 		}
 	}
 }
