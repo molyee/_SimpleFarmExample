@@ -10,7 +10,7 @@ package views.map
 	{
 		// -- уровни
 		protected var backgroundLayer:BackgroundLayer; // уровень фона
-		protected var tilesLayer:Sprite; // уровень ячеек
+		protected var tilesLayer:TilesLayer; // уровень ячеек
 		protected var itemsLayer:Sprite; // уровень объектов
 		
 		// текущий размер сцены
@@ -26,25 +26,21 @@ package views.map
 		protected var _dragging:Boolean = false; // состояние перетаскивания карты
 		protected var _dragEnabled:Boolean = true; // триггер доступности функции перемещения карты с помощью мыши
 		
-		// объекта на карте, на который следует фокусироваться
+		// точка на карте, на которую следует фокусироваться
 		protected var _target:Point; 
-		// конечная точка перемещения карты для установки фокуса
-		protected var _targetingX:Number;
-		protected var _targetingY:Number; 
 		
 		// -- конструктор
-		public function MapView(width:Number, height:Number)
+		public function MapView(size:int)
 		{
 			super();
 			
-			Isometric.MAP_WIDTH = width;
-			Isometric.MAP_HEIGHT = height;
-			
 			_target = new Point();
 			
-			backgroundLayer = new BackgroundLayer(this, null, width, height);
+			backgroundLayer = new BackgroundLayer(this, null);
 			
-			tilesLayer = new Sprite();
+			tilesLayer = new TilesLayer(size);
+			this.addChild(tilesLayer);
+			
 			itemsLayer = new Sprite();
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
@@ -57,8 +53,8 @@ package views.map
 			
 			resize(stage.stageWidth, stage.stageHeight);
 			
-			_target.x = Isometric.MAP_WIDTH / 2;
-			_target.y = Isometric.MAP_HEIGHT / 2;
+			_target.x = tilesLayer.xpos + tilesLayer.normalWidth / 2;
+			_target.y = tilesLayer.ypos + tilesLayer.normalHeight / 2;
 			center();
 			
 			backgroundLayer.show();
@@ -127,9 +123,9 @@ package views.map
 		// центрирование положения карты вокруг фокусной точки
 		public function center():void
 		{
-			_targetingX = _target.x + _stageWidth / 2 - backgroundLayer.width;
-			_targetingY = _target.y + _stageHeight / 2 - backgroundLayer.height;
-			moveTo(_targetingX, _targetingY, false);
+			var _x:Number = _target.x + _stageWidth / 2 - backgroundLayer.width;
+			var _y:Number = _target.y + _stageHeight / 2 - backgroundLayer.height;
+			moveTo(_x, _y, false);
 		}
 		
 		// перемещение карты на заданную позицию
@@ -155,8 +151,8 @@ package views.map
 			_stageWidth = stage.stageWidth;
 			_stageHeight = stage.stageHeight;
 			
-			var backWidth:Number = Math.max(Isometric.MAP_WIDTH, _stageWidth);
-			var backHeight:Number = Math.max(Isometric.MAP_HEIGHT, _stageHeight);
+			var backWidth:Number = Math.max(tilesLayer.normalWidth + 2 * Isometric.PADDING_X, _stageWidth);
+			var backHeight:Number = Math.max(tilesLayer.normalHeight + 2 * Isometric.PADDING_Y, _stageHeight);
 			backgroundLayer.setSize(backWidth, backHeight);
 			
 			// фокусируем на фокусной точке карты

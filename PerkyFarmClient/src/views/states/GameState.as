@@ -20,7 +20,7 @@ package views.states
 		
 		public function GameState(stateID:String, holder:DisplayObjectContainer, controller:ClientConnectionController)
 		{
-			_mapView = new MapView(4096, 2048);
+			_mapView = new MapView(30);
 			_controlPanel = new GameControlPanel();
 			
 			// создание списка активных объектов состояния

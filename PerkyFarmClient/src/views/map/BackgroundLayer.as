@@ -76,7 +76,7 @@ package views.map
 			if (_showing) return;
 			_showing = true;
 			update();
-			_holder.addChild(_background);
+			_holder.addChildAt(_background, 0);
 		}
 		
 		// скрытие фона (удаление из списка отображения)
