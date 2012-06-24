@@ -1,6 +1,7 @@
 package controllers 
 {
 	import flash.events.IEventDispatcher;
+	import models.Item;
 	import net.connection.Client;
 	
 	/**
@@ -18,13 +19,19 @@ package controllers
 		// получение данных о пользователе
 		function getUserData(userID:String, callback:Function):void;
 		
+		// получение данных об объекте на карте пользователя
+		function getItem(userID:String, itemID:String, callback:Function):Boolean;
+		
 		// получение данных о типе объекта
 		function getItemTypeData(itemType:String, callback:Function):void;
+		
+		// получение данных о типах объектов
+		function getItemTypes(callback:Function):void;
 		
 		// -- user api
 		
 		// создание объекта и установка в указанную точку
-		function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean;
+		function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String;
 		
 		// перемещение объекта в указанную точку
 		function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean;

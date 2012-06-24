@@ -42,7 +42,7 @@ package views.states
 				if (inner.parent)
 					inner.parent.removeChild(inner);
 				if (_selected)
-					_holder.addChild(inner);
+					_holder.addChildAt(inner, 0);
 			}
 		}
 		

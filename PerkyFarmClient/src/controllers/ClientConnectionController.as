@@ -4,6 +4,9 @@ package controllers
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import models.Item;
+	import models.ItemType;
+	import models.Model;
 	import models.User;
 	
 	import net.connection.Client;
@@ -36,8 +39,8 @@ package controllers
 		public function ClientConnectionController()
 		{
 			_client = new Client(this, null, true);
-			super();
 			_resourceStorage = new ResourceStorage();
+			super();
 		}
 		
 		// создание соединения с сервером
@@ -100,7 +103,7 @@ package controllers
 			_logging = false;
 			_loginHandler(result);
 			_loginHandler = null;
-			_client.currentUser.update(result['user_data']);
+			_client.currentUser.update(result);
 			dispatchEvent(new Event(Event.INIT));
 		}
 		
@@ -119,16 +122,35 @@ package controllers
 		}
 		
 		// получение данных о типе объекта на карте
+		override public function getItem(userID:String, itemID:String, callback:Function):Boolean
+		{
+			var user:User = userID != null ? Model.instance.getUser(userID) : _client.currentUser;
+			if (!user || !user.id) return false;
+			var item:Item = user.getItem(itemID);
+			if (item != null) {
+				callback(item);
+				return true;
+			}
+			return false;
+		}
+		
+		// получение данных о типе объекта на карте
 		override public function getItemTypeData(itemType:String, callback:Function):void
 		{
-			
+			callback(ItemType.getItemTypeData(itemType));
+		}
+		
+		// получение данных о типах объектов
+		override public function getItemTypes(callback:Function):void
+		{
+			callback(Model.instance.getItemTypes());
 		}
 		
 		// установка нового объекта в заданную точку карты
-		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean
+		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String
 		{
-			var res:Boolean = super.placeItem(_client, itemType, xpos, ypos, callback);
-			if (res) client.connection.send("placeItem", { item_type: itemType, x: xpos, y: ypos }, callback);
+			var res:String = super.placeItem(_client, itemType, xpos, ypos, callback);
+			if (res != null) _client.connection.send("placeItem", { item_type: itemType, x: xpos, y: ypos }, callback);
 			return res;
 		}
 		
@@ -136,7 +158,7 @@ package controllers
 		override public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
 			var res:Boolean = super.moveItem(_client, itemID, xpos, ypos, callback);
-			if (res) client.connection.send("moveItem", { id: itemID, x: xpos, y: ypos }, callback);
+			if (res) _client.connection.send("moveItem", { id: itemID, x: xpos, y: ypos }, callback);
 			return res;
 		}
 		
@@ -144,7 +166,7 @@ package controllers
 		override public function collectItem(client:Client, itemID:String, callback:Function):Boolean
 		{
 			var res:Boolean = super.collectItem(_client, itemID, callback);
-			if (res) client.connection.send("collectItem", itemID, callback);
+			if (res) _client.connection.send("collectItem", itemID, callback);
 			return res;
 		}
 		
@@ -153,7 +175,7 @@ package controllers
 		{
 			var res:Array = super.upgradeItems(_client, itemIDs, callback) as Array;
 			if (res && res.length > 0)
-				client.connection.send("upgradeAllItems", res, callback);
+				_client.connection.send("upgradeAllItems", res, callback);
 			return res;
 		}
 		

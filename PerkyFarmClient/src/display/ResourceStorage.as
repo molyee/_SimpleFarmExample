@@ -40,6 +40,8 @@ package display
 			
 			_serializer = new UTFBitSerializer();
 			
+			BitmapDataLoader.STORAGE = this;
+			
 			_busy = true;
 			
 			_loader = new BitDataProtocol(resourceReceiveHandler, null, true);
@@ -114,7 +116,7 @@ package display
 		// отправка url(uuid) ресурса
 		private function sendUrl(url:String):void
 		{
-			var urlByteArray:ByteArray = _serializer.decode(url) as ByteArray;
+			var urlByteArray:ByteArray = _serializer.encode(url) as ByteArray;
 			_loader.send(urlByteArray);
 		}
 		

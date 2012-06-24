@@ -6,6 +6,9 @@ package models
 	 */
 	public class SkinData 
 	{
+		public static var ITEM_IMAGES_PATH:String;
+		public static var ITEM_IMAGES_FORMAT:String;
+		
 		protected var _itemType:String;
 		public function get itemType():String { return _itemType; }
 		
@@ -16,7 +19,7 @@ package models
 		public function get isDefault():Boolean { return _isDefault; }
 		
 		protected var _offsetX:int;
-		public function get offsetX():int { return _offsetY; }
+		public function get offsetX():int { return _offsetX; }
 		
 		protected var _offsetY:int;
 		public function get offsetY():int { return _offsetY; }
@@ -31,6 +34,7 @@ package models
 			_offsetX = offsetX;
 			_offsetY = offsetY;
 			_isDefault = isDefault;
+			_url = ITEM_IMAGES_PATH + "/" + itemType + "/" + level + "." + ITEM_IMAGES_FORMAT;
 		}
 		
 	}

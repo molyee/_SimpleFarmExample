@@ -26,23 +26,44 @@ package data
 		[Embed(source="../../media/grass_texture.jpg")]
 		private static const BACKGROUND_TEXTURE:Class;
 		
-		[Embed(source="../../media/items/potato/1.png")] private static const POTATO_1:Class;
-		[Embed(source="../../media/items/potato/2.png")] private static const POTATO_2:Class;
-		[Embed(source="../../media/items/potato/3.png")] private static const POTATO_3:Class;
-		[Embed(source="../../media/items/potato/4.png")] private static const POTATO_4:Class;
-		[Embed(source="../../media/items/potato/5.png")] private static const POTATO_5:Class;
+		[Embed(source="../../media/items/potato/1.png")]
+		private static const POTATO_1:Class;
+		[Embed(source="../../media/items/potato/2.png")]
+		private static const POTATO_2:Class;
+		[Embed(source="../../media/items/potato/3.png")]
+		private static const POTATO_3:Class;
+		[Embed(source="../../media/items/potato/4.png")]
+		private static const POTATO_4:Class;
+		[Embed(source="../../media/items/potato/5.png")]
+		private static const POTATO_5:Class;
 		
-		[Embed(source="../../media/items/clover/1.png")] private static const CLOVER_1:Class;
-		[Embed(source="../../media/items/clover/2.png")] private static const CLOVER_2:Class;
-		[Embed(source="../../media/items/clover/3.png")] private static const CLOVER_3:Class;
-		[Embed(source="../../media/items/clover/4.png")] private static const CLOVER_4:Class;
-		[Embed(source="../../media/items/clover/5.png")] private static const CLOVER_5:Class;
+		[Embed(source="../../media/items/clover/1.png")]
+		private static const CLOVER_1:Class;
+		[Embed(source="../../media/items/clover/2.png")]
+		private static const CLOVER_2:Class;
+		[Embed(source="../../media/items/clover/3.png")]
+		private static const CLOVER_3:Class;
+		[Embed(source="../../media/items/clover/4.png")]
+		private static const CLOVER_4:Class;
+		[Embed(source="../../media/items/clover/5.png")]
+		private static const CLOVER_5:Class;
 		
-		[Embed(source="../../media/items/sunflower/1.png")] private static const SUNFLOWER_1:Class;
-		[Embed(source="../../media/items/sunflower/2.png")] private static const SUNFLOWER_2:Class;
-		[Embed(source="../../media/items/sunflower/3.png")] private static const SUNFLOWER_3:Class;
-		[Embed(source="../../media/items/sunflower/4.png")] private static const SUNFLOWER_4:Class;
-		[Embed(source="../../media/items/sunflower/5.png")] private static const SUNFLOWER_5:Class;
+		[Embed(source="../../media/items/sunflower/1.png")]
+		private static const SUNFLOWER_1:Class;
+		[Embed(source="../../media/items/sunflower/2.png")]
+		private static const SUNFLOWER_2:Class;
+		[Embed(source="../../media/items/sunflower/3.png")]
+		private static const SUNFLOWER_3:Class;
+		[Embed(source="../../media/items/sunflower/4.png")]
+		private static const SUNFLOWER_4:Class;
+		[Embed(source="../../media/items/sunflower/5.png")]
+		private static const SUNFLOWER_5:Class;
+		
+		[Embed(source="../../media/items/sunflower/1.png")]
+		private static const BIG_SUNFLOWER_1:Class;
+		[Embed(source="../../media/items/sunflower/2.png")]
+		private static const BIG_SUNFLOWER_2:Class;
+		
 		
 		private var _resources:Object = {};
 		private var _xmlResources:Array = ["/config/item_types.xml"];
@@ -63,10 +84,10 @@ package data
 			_resources[MEDIA_PATH + "background.jpg"] = new BACKGROUND_TEXTURE();
 			
 			_resources[ITEM_IMAGES_PATH + "potato/1.png"] = new POTATO_1();
-			_resources[ITEM_IMAGES_PATH + "potato/2.png"] = new POTATO_1();
-			_resources[ITEM_IMAGES_PATH + "potato/3.png"] = new POTATO_1();
-			_resources[ITEM_IMAGES_PATH + "potato/4.png"] = new POTATO_1();
-			_resources[ITEM_IMAGES_PATH + "potato/5.png"] = new POTATO_1();
+			_resources[ITEM_IMAGES_PATH + "potato/2.png"] = new POTATO_2();
+			_resources[ITEM_IMAGES_PATH + "potato/3.png"] = new POTATO_3();
+			_resources[ITEM_IMAGES_PATH + "potato/4.png"] = new POTATO_4();
+			_resources[ITEM_IMAGES_PATH + "potato/5.png"] = new POTATO_5();
 			
 			_resources[ITEM_IMAGES_PATH + "clover/1.png"] = new CLOVER_1();
 			_resources[ITEM_IMAGES_PATH + "clover/2.png"] = new CLOVER_2();
@@ -80,34 +101,44 @@ package data
 			_resources[ITEM_IMAGES_PATH + "sunflower/4.png"] = new SUNFLOWER_4();
 			_resources[ITEM_IMAGES_PATH + "sunflower/5.png"] = new SUNFLOWER_5();
 			
+			_resources[ITEM_IMAGES_PATH + "big_sunflower/1.png"] = new BIG_SUNFLOWER_1();
+			_resources[ITEM_IMAGES_PATH + "big_sunflower/2.png"] = new BIG_SUNFLOWER_2();
+			
+			
 			var itemTypesXML:XML = new XML(
 				'<?xml version="1.0" encoding="UTF-8" ?>' +
 				'<itemTypes imagesPath="/media/items" imgFormat="png" >' +
 					'<itemType name="clover" levels="5" w="1" h="1">' +
 						'<images>' +
-							'<img id="1" x="0" y="0" default="1" />' +
-							'<img id="2" x="0" y="0" />' +
-							'<img id="3" x="0" y="0" />' +
-							'<img id="4" x="0" y="0" />' +
-							'<img id="5" x="0" y="0" />' +
+							'<img id="1" x="0" y="3" />' +
+							'<img id="2" x="0" y="24" />' +
+							'<img id="3" x="0" y="21" />' +
+							'<img id="4" x="0" y="20" />' +
+							'<img id="5" x="0" y="17" def="1" />' +
 						'</images>' +
 					'</itemType>' +
 					'<itemType name="potato" levels="5" w="1" h="1">' +
 						'<images>' +
-							'<img id="1" x="0" y="0" def="1" />' +
-							'<img id="2" x="0" y="0" />' +
-							'<img id="3" x="0" y="0" />' +
-							'<img id="4" x="0" y="0" />' +
-							'<img id="5" x="0" y="0" />' +
+							'<img id="1" x="0" y="25" />' +
+							'<img id="2" x="0" y="25" />' +
+							'<img id="3" x="0" y="17" />' +
+							'<img id="4" x="0" y="16" />' +
+							'<img id="5" x="0" y="14" def="1" />' +
 						'</images>' +
 					'</itemType>' +
 					'<itemType name="sunflower" levels="5" w="1" h="1">' +
 						'<images>' +
-							'<img id="1" x="0" y="0" def="1" />' +
-							'<img id="2" x="0" y="0" />' +
-							'<img id="3" x="0" y="0" />' +
-							'<img id="4" x="0" y="0" />' +
-							'<img id="5" x="0" y="0" />' +
+							'<img id="1" x="0" y="26" />' +
+							'<img id="2" x="0" y="17" />' +
+							'<img id="3" x="0" y="10" />' +
+							'<img id="4" x="0" y="-2" />' +
+							'<img id="5" x="0" y="-10" def="1" />' +
+						'</images>' +
+					'</itemType>' +
+					'<itemType name="big_sunflower" levels="2" w="3" h="3">' +
+						'<images>' +
+							'<img id="1" x="0" y="26" />' +
+							'<img id="2" x="0" y="17" def="1" />' +
 						'</images>' +
 					'</itemType>' +
 				'</itemTypes>');
@@ -152,7 +183,7 @@ package data
 		private function getRequest(protocol:BitDataProtocol, data:ByteArray):void
 		{
 			var byteArray:ByteArray = new ByteArray();
-			var url:String = _serializer.encode(data);
+			var url:String = _serializer.decode(data);
 			var resource:* = getResource(url);
 			var resourceType:String = url.substring(url.length - 4, url.length);
 			if (resourceType == ".xml") {

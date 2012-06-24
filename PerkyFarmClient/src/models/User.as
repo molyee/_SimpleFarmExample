@@ -35,7 +35,7 @@ package models
 		
 		// граф, содержащий расположение объектов на карте пользователя
 		protected var _map:Object;
-		protected function get map():Object {
+		public function get map():Object {
 			return _map != null ? _map : prepareMap();
 		}
 		
@@ -69,36 +69,62 @@ package models
 		}
 		
 		// добавление готового объекта на карту пользователя
-		public function addItem(itemType:String, xpos:int, ypos:int):Boolean
+		public function addItem(itemType:String, xpos:int, ypos:int):String
 		{
 			var itemID:String = item_uuid.toString();
-			var item:Item = new Item({ id: itemID, item_type: itemType, x: xpos, y: ypos });
-			var itemSize:Array = item.size;
-			if (!checkEmptyPosition(xpos, ypos, itemSize))
-				return false; // место занято
-			var mapLink:Object = map;
-			var n:int = xpos + itemSize[0];
-			var m:int = ypos + itemSize[1];
-			for (var i:int = xpos; i < n; i++) {
-				for (var j:int = ypos; j < m; j++) {
-					mapLink[i + "_" + j] = item; // заполняем карту
-				}
-			}
+			var item:Item = new Item({ id: itemID, level: 1, item_type: itemType, x: xpos, y: ypos });
+			if (!setItemPosition(item, xpos, ypos))
+				return null;
 			item.setOwner(id); // обновляем владельца
 			items[itemID] = item;
 			_numItems++;
 			item_uuid++;
-			return true;
+			return itemID;
 		}
 		
 		// перемещение объекта по карте
 		public function moveItem(itemID:String, xpos:int, ypos:int):Boolean
 		{
 			var item:Item = getItem(itemID);
-			if (!item || !checkEmptyPosition(xpos, ypos, item.size, item.id))
+			if (!item || !setItemPosition(item, xpos, ypos))
 				return false;
+			return true;
+		}
+		
+		// установка позиции объекта, заполнение ячеек
+		public function setItemPosition(item:Item, xpos:int, ypos:int):Boolean
+		{
+			var itemSize:Array = item.size;
+			if (!checkEmptyPositions(xpos, ypos, itemSize))
+				return false; // место занято
+			var mapLink:Object = map;
+			var i0:int = xpos - int(itemSize[0] / 2) - 1;
+			var j0:int = ypos - int(itemSize[1] / 2);
+			var n:int = i0 + itemSize[0];
+			var m:int = j0 + itemSize[1];
+			for (var i:int = i0; i < n; i++) {
+				for (var j:int = j0; j < m; j++) {
+					mapLink[i + "_" + j] = item; // заполняем карту
+				}
+			}
 			item.setPosition(xpos, ypos);
 			return true;
+		}
+		
+		// очистка объекта 
+		public function clearItemPosition(item:Item):void
+		{
+			var itemSize:Array = item.size;
+			var mapLink:Object = map;
+			var i0:int = item.x - int(itemSize[0] / 2) - 1;
+			var j0:int = item.y - int(itemSize[1] / 2);
+			var n:int = i0 + itemSize[0];
+			var m:int = j0 + itemSize[1];
+			for (var i:int = i0; i < n; i++) {
+				for (var j:int = j0; j < m; j++) {
+					delete mapLink[i + "_" + j]; // опустошаем
+				}
+			}
 		}
 		
 		// удаление объекта из списка
@@ -119,8 +145,9 @@ package models
 			var item:Item = getItem(itemID);
 			if (!item || item.level < item.maxLevel)
 				return false; // объект не найден или не достиг максимального уровня
+			clearItemPosition(item);
 			delete items[item.id]; // перемещаем объект в инвентарь
-			inventory.push(item);
+			inventory[item.id] = item;
 			_numItems--;
 			_numInventoryItems++;
 			return true;
@@ -164,13 +191,15 @@ package models
 		}
 		
 		// проверка свободного места для установки целевого объекта
-		public function checkEmptyPosition(x:int, y:int, size:Array, itemID:String = null):Boolean
+		public function checkEmptyPositions(x:int, y:int, size:Array, itemID:String = null):Boolean
 		{
 			var mapLink:Object = map;
-			var n:int = x + size[0];
-			var m:int = y + size[1];
-			for (var i:int = x; i < n; i++) {
-				for (var j:int = y; j < m; j++) {
+			var i0:int = x - int(size[0] / 2) - 1;
+			var j0:int = y - int(size[1] / 2);
+			var n:int = i0 + size[0];
+			var m:int = j0 + size[1];
+			for (var i:int = i0; i < n; i++) {
+				for (var j:int = j0; j < m; j++) {
 					var item:Item = mapLink[i + "_" + j];
 					if (!item || item.id == itemID)
 						continue;
@@ -185,6 +214,7 @@ package models
 		{
 			// TODO(Alex Sarapulov): проверить, возможно лучше вычислять карту каждый раз,
 			// а не хранить ее, чтобы не занимать память
+			_map = { };
 			for each (var itemID:String in items) {
 				var item:Item = getItem(itemID);
 				_map[item.x + "_" + item.y] = item;

@@ -1,11 +1,14 @@
-package net.serialize 
+package net.serialize
 {
-	import com.serialization.json.JSON;
+	import com.adobe.serialization.json.JSON;
+	
+	import net.serialize.ISerializer;
+	
 	/**
 	 * ...
 	 * @author Alex Sarapulov
 	 */
-	public class XMLSerializer implements ISerializer 
+	public class XMLSerializer implements ISerializer
 	{
 		
 		public function XMLSerializer() 
@@ -13,18 +16,14 @@ package net.serialize
 			
 		}
 		
-		public function decode(data:*):Object 
+		public function encode(data:*):* 
 		{
-			//return XML(data);
-			return com.serialization.json.JSON.deserialize(data);
+			return com.adobe.serialization.json.JSON.encode(data);
 		}
 		
-		public function encode(object:Object):* 
+		public function decode(object:*):*
 		{
-			//return XML(object).toXMLString();
-			return com.serialization.json.JSON.serialize(object);
+			return com.adobe.serialization.json.JSON.decode(object);
 		}
-		
 	}
-
 }

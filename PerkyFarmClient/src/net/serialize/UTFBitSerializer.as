@@ -14,7 +14,7 @@ package net.serialize
 			
 		}
 		
-		public function decode(data:*):Object 
+		public function encode(data:*):* 
 		{
 			var str:String = String(data);
 			var result:ByteArray = new ByteArray();
@@ -25,7 +25,7 @@ package net.serialize
 			return result;
 		}
 		
-		public function encode(object:Object):* 
+		public function decode(object:*):* 
 		{
 			var ba:ByteArray = object as ByteArray;
 			var origPos:uint = ba.position;

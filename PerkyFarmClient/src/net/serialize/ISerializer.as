@@ -6,9 +6,9 @@ package net.serialize
 	 */
 	public interface ISerializer 
 	{
-		function decode(data:*):Object;
+		function decode(data:*):*;
 		
-		function encode(object:Object):*;
+		function encode(object:*):*;
 	}
 	
 }

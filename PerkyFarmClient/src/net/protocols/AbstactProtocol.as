@@ -2,8 +2,8 @@ package net.protocols
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	
 	import net.serialize.ISerializer;
+	
 	
 	/**
 	 * ...

@@ -8,7 +8,7 @@ package models
 	public class ItemType
 	{
 		
-		protected static const ITEM_TYPES:Object = { };
+		public static const ITEM_TYPES:Object = { };
 		
 		public static function getItemTypeData(itemType:String):ItemType
 		{
@@ -17,16 +17,18 @@ package models
 		
 		public static function initItemTypes(itemTypesData:XML):void
 		{
-			trace(itemTypesData);
-			for each (var item:* in itemTypesData) {
-				trace(item);
+			SkinData.ITEM_IMAGES_FORMAT = itemTypesData.@imgFormat;
+			SkinData.ITEM_IMAGES_PATH = itemTypesData.@imagesPath;
+			for each (var item:XML in itemTypesData..itemType) {
+				var name:String = item.@name;
+				ITEM_TYPES[item.@name] = new ItemType(name, item);
 			}
 		}
 		
 		
 		// наименование типа объекта
-		protected var _itemType:String;
-		public function get itemType():String { return _itemType; }
+		protected var _name:String;
+		public function get name():String { return _name; }
 		
 		// размер объекта
 		protected var _size:Array;
@@ -40,15 +42,19 @@ package models
 		protected var _imagesData:Object;
 		
 		// -- конструктор
-		public function ItemType(itemType:String, data:XML)
+		public function ItemType(name:String, data:XML)
 		{
-			_itemType = itemType;
-			
-			_size = [1, 1];
-			
-			_maxLevel = 5;
-			
-			_imagesData = { "1": new SkinData(itemType, 1, 0, 0, true) };
+			_name = name;
+			_size = [int(data.@w), int(data.@h)];
+			_maxLevel = data.@levels;
+			_imagesData = { };
+			for each (var img:XML in data..img) {
+				var level:uint = uint(img.@id);
+				var offsetX:int = int(img.@x);
+				var offsetY:int = int(img.@y);
+				var isDefault:Boolean = Boolean(int(img.@def) != 0);
+				_imagesData[level] = new SkinData(_name, level, offsetX, offsetY, isDefault);
+			}
 		}
 		
 		// получение данных о скине объекта
@@ -57,6 +63,14 @@ package models
 			return _imagesData[level];
 		}
 		
-		
+		// получение данных о миниатюрном изображении
+		public function getIconUrl():String
+		{
+			for each (var skin:SkinData in _imagesData) {
+				if (skin.isDefault)
+					return skin.url;
+			}
+			return (_imagesData[1] as SkinData).url;
+		}
 	}
 }

@@ -22,7 +22,7 @@ package views.states
 		public function GameState(stateID:String, holder:DisplayObjectContainer, controller:ClientConnectionController)
 		{
 			_mapView = new MapView(controller, 30);
-			_controlPanel = new GameControlPanel(controller);
+			_controlPanel = new GameControlPanel(controller, _mapView);
 			
 			// создание списка активных объектов состояния
 			var inners:Vector.<DisplayObject> = new Vector.<DisplayObject>();
@@ -44,11 +44,12 @@ package views.states
 		
 		private function modelInitHandler(event:Event):void 
 		{
-			
+			_mapView.currentUser = _controller.client.currentUser;
 		}
 		
 		override public function start():void
 		{
+			
 			trace(_stateID + " started");
 		}
 		

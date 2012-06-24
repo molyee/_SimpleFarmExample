@@ -34,7 +34,7 @@ package net.connection
 		{
 			_controller = controller;
 			_currentUser = new User();
-			var serializer:ISerializer = new XMLSerializer();
+			var serializer:* = new XMLSerializer();
 			var connectionID:String = Math.round(Math.random() * 1000000000).toString()
 			_connection = new DataConnection(connectionID, _controller.call, this, CompressedUTFDataProtocol, serializer, socket, forceReconnection);
 		}

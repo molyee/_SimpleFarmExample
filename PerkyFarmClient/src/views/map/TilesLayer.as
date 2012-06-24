@@ -22,9 +22,9 @@ package views.map
 		public static const BOUNDS_ALPHA:Number = 0.3;
 		
 		public static const ENABLED_COLOR:uint = 0x6633ff00;
-		public static const ENABLED_ALPHA:Number = 0.7;
-		public static const BUSY_COLOR:uint = 0x33ff0000;
-		public static const BUSY_ALPHA:Number = 0.7;
+		public static const ENABLED_ALPHA:Number = 0.5;
+		public static const BUSY_COLOR:uint = 0x66ffffff;
+		public static const BUSY_ALPHA:Number = 0.5;
 		
 		protected var _normalWidth:Number;
 		public function get normalWidth():Number { return _normalWidth; }
@@ -48,10 +48,11 @@ package views.map
 		
 		// карта заполнения ячеек
 		protected var _objectsMap:Object;
+		public function set objectsMap(value:Object):void { _objectsMap = value; };
 		
 		protected var _checkingPath:Boolean; // триггер запуска проверки ячеек
 		
-		protected var _currentPathSize:Point; // размер проверяемого объекта (x - кол-во гориз. ячеек, y-кол-во вертик. ячеек)
+		protected var _currentObject:IMapObjectView; // проверяемый объект
 		protected var _lastTargetCell:Point; // предыдущая целевая позиция
 		protected var _lastColoredPositions:Array; // предыдущие залитые ячейки
 		
@@ -68,6 +69,9 @@ package views.map
 		{
 			super();
 			
+			mouseChildren = false;
+			mouseEnabled = false;
+			
 			_size = size;
 			_normalWidth = _size * horizontalCellSize;
 			_normalHeight = _size * verticalCellSize;
@@ -78,8 +82,6 @@ package views.map
 			_coloredBitmap = new Bitmap();
 			_coloredDrawer = new Shape();
 			
-			_objectsMap = { };
-			
 			Isometric.CELL_WIDTH = horizontalCellSize;
 			Isometric.CELL_HEIGHT = verticalCellSize;
 			Isometric.MAP_WIDTH = _normalWidth;
@@ -87,7 +89,7 @@ package views.map
 			
 			CONFIG::debug {
 				showCells();
-				setCheckingPath(3, 4);
+				//setCheckingPath(3, 4);
 			}
 		}
 		
@@ -138,24 +140,24 @@ package views.map
 		}
 		
 		// запуск проверки ячеек вокруг объекта карты
-		public function setCheckingPath(w:int, h:int):void
+		public function setCheckingObject(object:IMapObjectView):void
 		{
 			if (_checkingPath)
-				clearCheckingPath();
+				clearCheckingObject();
 			_checkingPath = true;
-			_currentPathSize = new Point(w, h);
+			_currentObject = object;
 			movePositionHandler();
 			this.addChildAt(_coloredBitmap, 0);
 			this.addEventListener(Event.ENTER_FRAME, movePositionHandler);
 		}
 		
 		// остановка проверки ячеек
-		public function clearCheckingPath():void
+		public function clearCheckingObject():void
 		{
 			this.removeEventListener(Event.ENTER_FRAME, movePositionHandler);
 			if (_coloredBitmap && _coloredBitmap.parent)
 				_coloredBitmap.parent.removeChild(_coloredBitmap);
-			_currentPathSize = null;
+			_currentObject = null;
 			_lastTargetCell = null;
 			_checkingPath = false;
 		}
@@ -163,15 +165,16 @@ package views.map
 		// обработчик изменения положения мыши
 		protected function movePositionHandler(event:Event = null):void
 		{
-			if (!_checkingPath || !_currentPathSize)
+			if (!_checkingPath || !_currentObject)
 				return;
 			var targetCell:Point = getTargetCell(mouseX, mouseY);
 			if (_lastTargetCell && _lastTargetCell.x == targetCell.x && _lastTargetCell.y == targetCell.y)
 				return;
 			
 			trace(targetCell.x, targetCell.y);
+			_currentObject.setPosition(targetCell.x + 1, targetCell.y);
 				
-			var positions:Array = getPositions(targetCell);
+			var positions:Array = getPositions(targetCell, _currentObject);
 			if (_lastColoredPositions != null) {
 				for each (var pos:Point in _lastColoredPositions) {
 					var index:int = positions.indexOf(pos);
@@ -213,19 +216,26 @@ package views.map
 		// проверка на отсутствие объектов в ячейке
 		protected function checkPosition(xpos:int, ypos:int):Boolean
 		{
+			return getObject(xpos, ypos) == null;
+		}
+		
+		// взятие объекта, находящегося в ячейке
+		public function getObject(xpos:int, ypos:int):*
+		{
 			if (xpos < 0 || xpos >= _size || ypos < 0 || ypos >= _size)
 				return false;
-			return _objectsMap[xpos + "" + ypos] == null;
+			var object:* = _objectsMap[xpos + "_" + ypos];
+			return object;
 		}
 		
 		// получение ячеек вокруг целевой позиции с учетом размеров целевого объекта
-		protected function getPositions(targetCell:Point):Array
+		public function getPositions(targetCell:Point, object:IMapObjectView):Array
 		{
 			var positions:Array = [];
-			var i0:int = targetCell.x - int(_currentPathSize.x / 2);
-			var j0:int = targetCell.y - int(_currentPathSize.y / 2) + 1;
-			var n:int = i0 + _currentPathSize.x;
-			var m:int = j0 + _currentPathSize.y;
+			var i0:int = targetCell.x - int(object.w / 2);
+			var j0:int = targetCell.y - int(object.h / 2);
+			var n:int = i0 + object.w;
+			var m:int = j0 + object.h;
 			for (var i:int = i0; i < n; i++) {
 				for (var j:int = j0; j < m; j++) {
 					positions.push(new Point(i, j));

@@ -1,6 +1,7 @@
 package controllers 
 {
 	import data.DBConnection;
+	import data.DBObjectTypes;
 	import data.ServerResourceStorage;
 	
 	import flash.events.Event;
@@ -9,6 +10,10 @@ package controllers
 	import flash.utils.Dictionary;
 	
 	import logging.Logger;
+	
+	import models.Item;
+	import models.Model;
+	import models.User;
 	
 	import net.connection.Client;
 
@@ -77,27 +82,27 @@ package controllers
 		// ------ user api
 		
 		// установка нового объекта в заданное место на карте пользователя
-		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean
+		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String
 		{
-			return true;
+			return super.placeItem(client, itemType, xpos, ypos, callback);
 		}
 		
 		// перемещение объекта в заданное место на карте пользователя
 		override public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
-			return true;
+			return super.moveItem(client, itemID, xpos, ypos, callback);
 		}
 		
 		// сбор готового объекта
 		override public function collectItem(client:Client, itemID:String, callback:Function):Boolean
 		{
-			return true;
+			return super.collectItem(client, itemID, callback);
 		}
 		
 		// инкремент уровня всех объектов на карте пользователя
 		override public function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array
 		{
-			return itemIDs;
+			return super.upgradeItems(client, itemIDs, callback);
 		}
 		
 		
@@ -137,19 +142,43 @@ package controllers
 		override public function call(client:Client, method:String, data:*, callback:Function):void
 		{
 			var result:*;
+			var userID:String;
 			switch (method) {
+				case "login":
+					userID = data['login'] + "_" + data['password'];
+				case "getUserData":
+					if (!userID) userID = data;
+					var user:User = Model.instance.getUser(userID);
+					if (!user) {
+						result = _db.getObject(DBObjectTypes.USER_TYPE, userID);
+						user = new User();
+						if (!result) {
+							user.update({id: userID});
+							_db.setObject(DBObjectTypes.USER_TYPE, userID, user);
+						} else {
+							user.update(result);
+						}
+						Model.instance.addUser(user);
+					}
+					callback(user);
+					break;
 				case "placeItem":
-					result = placeItem(client, data['item_type'], data['x'], data['y'], null);
+					result = placeItem(client, data['item_type'], data['x'], data['y'], callback);
+					break;
 				case "moveItem":
-					result = moveItem(client, data['id'], data['x'], data['y'], null);
+					result = moveItem(client, data['id'], data['x'], data['y'], callback);
+					break;
 				case "collectItem":
-					result = collectItem(client, data, null);
+					result = collectItem(client, data, callback);
+					break;
 				case "upgradeItems":
-					result = upgradeItems(client, data, null);
+					result = upgradeItems(client, data, callback);
+					break;
 				default:
 					result = data;
+					callback(data);
 			}
-			callback(result);
+			//callback(result);
 		}
 	}
 

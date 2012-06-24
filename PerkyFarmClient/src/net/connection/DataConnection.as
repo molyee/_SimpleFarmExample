@@ -4,7 +4,6 @@ package net.connection
 	import flash.net.Socket;
 	import flash.utils.getTimer;
 	import net.protocols.IProtocol;
-	import net.serialize.ISerializer;
 	
 	/**
 	 * ...
@@ -30,7 +29,7 @@ package net.connection
 		protected var _packages:Object = {};
 		
 		// -- конструктор
-		public function DataConnection(id:String, callHandler:Function, client:*, ProtocolClass:Class, serializer:ISerializer, socket:Socket, forceReconnection:Boolean = false) 
+		public function DataConnection(id:String, callHandler:Function, client:*, ProtocolClass:Class, serializer:*, socket:Socket, forceReconnection:Boolean = false) 
 		{
 			_id = id;
 			_callHandler = callHandler;

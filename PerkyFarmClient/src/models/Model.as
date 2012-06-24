@@ -83,11 +83,9 @@ package models
 		}
 		
 		// создание нового пользователя
-		public function addUser():User
+		public function addUser(user:User):void
 		{
-			var user:User = new User();
 			_users[user.id] = user;
-			return user;
 		}
 		
 		// обновление данных пользователя
@@ -108,6 +106,14 @@ package models
 			user.dispose();
 			delete _users[userID];
 			return true;
+		}
+		
+		// получение данных о типах объектов
+		public function getItemTypes():Object
+		{
+			if (!_inited)
+				throw("Model is not initialized yet");
+			return ItemType.ITEM_TYPES;
 		}
 	}
 }

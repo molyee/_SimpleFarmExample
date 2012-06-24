@@ -1,5 +1,6 @@
 package models
 {
+	import flash.events.Event;
 	import models.ItemType;
 	import models.VObject;
 	import models.Model;
@@ -40,6 +41,7 @@ package models
 			return ItemType.getItemTypeData(item_type).maxLevel;
 		}
 		
+		public var enabled:Boolean = true;
 		
 		// -- конструктор
 		public function Item(source:Object = null)
@@ -53,6 +55,7 @@ package models
 			if (level >= maxLevel)
 				return false; // максимальный уровень уже был достигнут
 			level++;
+			if (id) dispatchEvent(new Event(Event.CHANGE));
 			return true;
 		}
 		
@@ -61,12 +64,14 @@ package models
 		{
 			x = xpos;
 			y = ypos;
+			if (id) dispatchEvent(new Event(Event.CHANGE));
 		}
 		
 		// установка владельца объекта
 		public function setOwner(ownerID:String):void
 		{
 			owner_id = ownerID;
+			if (id) dispatchEvent(new Event(Event.CHANGE));
 		}
 		
 		// ликвидация объекта карты
