@@ -1,6 +1,8 @@
 package views.map
 {
+	import controllers.IConnectionController;
 	import display.utils.Isometric;
+	import flash.display.BitmapData;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
@@ -29,14 +31,17 @@ package views.map
 		// точка на карте, на которую следует фокусироваться
 		protected var _target:Point; 
 		
+		// ссылка на контроллер
+		protected var _controller:IConnectionController;
+		
 		// -- конструктор
-		public function MapView(size:int)
+		public function MapView(controller:IConnectionController, size:int)
 		{
 			super();
 			
 			_target = new Point();
 			
-			backgroundLayer = new BackgroundLayer(this, null);
+			backgroundLayer = new BackgroundLayer(this);
 			
 			tilesLayer = new TilesLayer(size);
 			this.addChild(tilesLayer);
@@ -44,6 +49,11 @@ package views.map
 			itemsLayer = new Sprite();
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+		}
+		
+		public function setBackgroundTexture(texture:BitmapData):void
+		{
+			backgroundLayer.setTexture(texture);
 		}
 		
 		// обработчик события добавление карты на сцену

@@ -1,7 +1,6 @@
 package models
 {
-	import models.items.ItemSize;
-	import models.items.ItemType;
+	import models.ItemType;
 	import models.VObject;
 	import models.Model;
 	import models.User;
@@ -31,15 +30,16 @@ package models
 		// текущий уровень развития объекта
 		public var level:uint = 0;
 		
-		// максимально допустимый уровень для объекта
-		public function get maxLevel():uint {
-			return ItemType.maxLevel(item_type);
+		// размер объекта
+		public function get size():Array {
+			return ItemType.getItemTypeData(item_type).size;
 		}
 		
-		// шаблонный размер объекта
-		public function get size():ItemSize {
-			return ItemType.getSize(item_type);
+		// максимальный уровень объекта
+		public function get maxLevel():uint {
+			return ItemType.getItemTypeData(item_type).maxLevel;
 		}
+		
 		
 		// -- конструктор
 		public function Item(source:Object = null)

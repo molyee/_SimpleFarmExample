@@ -2,7 +2,7 @@
 <actionScriptProperties analytics="false" mainApplicationPath="FarmServer.mxml" projectUUID="26b35038-ffef-49bf-998c-e33bfc2680b2" version="6">
   <compiler additionalCompilerArguments="-locale ru_RU" autoRSLOrdering="true" copyDependentFiles="true" flexSDK="Flex 4.5.1" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="false" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="true" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath>
-      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/LazyFarmSolution/PerkyFarmClient/src"/>
+      <compilerSourcePathEntry kind="1" linkType="1" path="${DOCUMENTS}/FarmSolution/PerkyFarmClient/src"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="0">
       <libraryPathEntry kind="4" path="">

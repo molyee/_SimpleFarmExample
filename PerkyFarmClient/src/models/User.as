@@ -2,7 +2,6 @@ package models
 {
 	import models.Item;
 	import models.VObject;
-	import models.items.ItemSize;
 	
 	/**
 	 * объект пользователя (игрока)
@@ -40,6 +39,7 @@ package models
 			return _map != null ? _map : prepareMap();
 		}
 		
+		
 		// -- конструктор
 		public function User(source:* = null)
 		{
@@ -73,12 +73,12 @@ package models
 		{
 			var itemID:String = item_uuid.toString();
 			var item:Item = new Item({ id: itemID, item_type: itemType, x: xpos, y: ypos });
-			var itemSize:ItemSize = item.size;
+			var itemSize:Array = item.size;
 			if (!checkEmptyPosition(xpos, ypos, itemSize))
 				return false; // место занято
 			var mapLink:Object = map;
-			var n:int = xpos + itemSize.width;
-			var m:int = ypos + itemSize.height;
+			var n:int = xpos + itemSize[0];
+			var m:int = ypos + itemSize[1];
 			for (var i:int = xpos; i < n; i++) {
 				for (var j:int = ypos; j < m; j++) {
 					mapLink[i + "_" + j] = item; // заполняем карту
@@ -139,6 +139,7 @@ package models
 		public function upgradeItems(listIDs:Array):Array
 		{
 			var upgradedList:Array = [];
+			if (!listIDs) return upgradedList;
 			for each (var itemID:String in listIDs) {
 				if (upgradeItem(itemID))
 					upgradedList.push(itemID);
@@ -163,11 +164,11 @@ package models
 		}
 		
 		// проверка свободного места для установки целевого объекта
-		public function checkEmptyPosition(x:int, y:int, size:ItemSize, itemID:String = null):Boolean
+		public function checkEmptyPosition(x:int, y:int, size:Array, itemID:String = null):Boolean
 		{
 			var mapLink:Object = map;
-			var n:int = x + size.width;
-			var m:int = y + size.height;
+			var n:int = x + size[0];
+			var m:int = y + size[1];
 			for (var i:int = x; i < n; i++) {
 				for (var j:int = y; j < m; j++) {
 					var item:Item = mapLink[i + "_" + j];

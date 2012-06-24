@@ -13,6 +13,7 @@
 			import controllers.ServerConnectionController;
 			
 			import data.DBConnection;
+			import data.ServerResourceStorage;
 			
 			import logging.Logger;
 			
@@ -23,6 +24,7 @@
 			
 			public static var HOST:String = null; // ip-адрес сервера
 			public static var PORT:int = 10002; // прослушиваемый порт
+			public static var STATIC_PORT:int = 10010; // прослушиваемый порт для статики
 			
 			private var server:ServerSocket;
 			
@@ -32,6 +34,8 @@
 			private var dbConnection:DBConnection;
 			
 			private var model:Model;
+			
+			private var storage:ServerResourceStorage;
 			
 			public function init(event:Event):void
 			{
@@ -44,8 +48,11 @@
 				// создание подключения к базе данных
 				dbConnection = new DBConnection();
 				
+				// создание хранилища иллюстраций
+				storage = new ServerResourceStorage(STATIC_PORT);
+				
 				// создание контролирующего сервиса
-				controller = new ServerConnectionController(dbConnection);
+				controller = new ServerConnectionController(dbConnection, storage);
 				
 				// инициализация игровой модели
 				model = Model.instance;
@@ -64,6 +71,17 @@
 				server.listen();
 				var host:String = HOST || "localhost";
 				Logger.instance.writeLine("Listen TCP: " + host + ":" + PORT);
+				Logger.instance.writeLine("Addresses:");
+				var netInterfaces:Vector.<NetworkInterface> = NetworkInfo.networkInfo.findInterfaces();
+				if (!netInterfaces || netInterfaces.length == 0)
+					return;    
+				for each (var i:NetworkInterface in netInterfaces) {
+					if (!i.active) continue;
+					var addresses:Vector.<InterfaceAddress> =i.addresses;
+					for each (var j:InterfaceAddress in addresses) {
+						Logger.instance.writeLine("- Host : " + j.address);           
+					}
+				}
 			}
 			
 			// отключение tcp-сервера

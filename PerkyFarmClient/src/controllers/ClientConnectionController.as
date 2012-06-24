@@ -1,5 +1,6 @@
 package controllers
 {
+	import display.ResourceStorage;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
@@ -25,6 +26,8 @@ package controllers
 			return result;
 		}
 		
+		protected var _resourceStorage:ResourceStorage;
+		
 		// объект контроля соединения
 		protected var _client:Client;
 		public function get client():Client { return _client; }
@@ -34,6 +37,7 @@ package controllers
 		{
 			_client = new Client(this, null, true);
 			super();
+			_resourceStorage = new ResourceStorage();
 		}
 		
 		// создание соединения с сервером
@@ -100,34 +104,63 @@ package controllers
 			dispatchEvent(new Event(Event.INIT));
 		}
 		
-		// установка нового объекта в заданную точку карты
-		public function placeItem(itemType:String, xpos:int, ypos:int, callback:Function):Boolean
+		// ------ user api
+		
+		// асинхронное получение ресурса
+		override public function getResource(url:String, callback:Function):void
 		{
-			return super._placeItem(_client, itemType, xpos, ypos, callback);
+			_resourceStorage.getResource(url, callback);
+		}
+		
+		// получение данных о пользователе
+		override public function getUserData(userID:String, callback:Function):void
+		{
+			_client.connection.send("getUserData", userID, callback);
+		}
+		
+		// получение данных о типе объекта на карте
+		override public function getItemTypeData(itemType:String, callback:Function):void
+		{
+			
+		}
+		
+		// установка нового объекта в заданную точку карты
+		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean
+		{
+			var res:Boolean = super.placeItem(_client, itemType, xpos, ypos, callback);
+			if (res) client.connection.send("placeItem", { item_type: itemType, x: xpos, y: ypos }, callback);
+			return res;
 		}
 		
 		// перемещения объекта на карте
-		public function moveItem(itemID:String, xpos:int, ypos:int, callback:Function):Boolean
+		override public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
-			return super._moveItem(_client, itemID, xpos, ypos, callback);
+			var res:Boolean = super.moveItem(_client, itemID, xpos, ypos, callback);
+			if (res) client.connection.send("moveItem", { id: itemID, x: xpos, y: ypos }, callback);
+			return res;
 		}
 		
 		// сбор объекта
-		public function collectItem(itemID:String, callback:Function):Boolean
+		override public function collectItem(client:Client, itemID:String, callback:Function):Boolean
 		{
-			return super._collectItem(_client, itemID, callback);
+			var res:Boolean = super.collectItem(_client, itemID, callback);
+			if (res) client.connection.send("collectItem", itemID, callback);
+			return res;
 		}
 		
 		// обновление уровня у всех объектов на карте
-		public function upgradeAllItems(callback:Function):Boolean
+		override public function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array
 		{
-			return super._upgradeAllItems(_client, callback);
+			var res:Array = super.upgradeItems(_client, itemIDs, callback) as Array;
+			if (res && res.length > 0)
+				client.connection.send("upgradeAllItems", res, callback);
+			return res;
 		}
 		
 		// -- request handlers
 		
 		// получение запроса от сервера
-		override public function call(client:Client, method:String, data:Object, callback:Function):void
+		override public function call(client:Client, method:String, data:*, callback:Function):void
 		{
 			// TODO(Alex Sarapulov): make handler
 			trace("get some request");

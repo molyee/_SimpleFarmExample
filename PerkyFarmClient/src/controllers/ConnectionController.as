@@ -2,7 +2,9 @@ package controllers
 {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	
 	import models.User;
+	
 	import net.connection.Client;
 	/**
 	 * ...
@@ -20,57 +22,63 @@ package controllers
 		{
 		}
 		
+		// получение данных ресурса
+		public function getResource(url:String, callback:Function):void
+		{
+			throw("Abstract method getResource(url:String, callback:Function) must be overriden");
+		}
+		
+		// получение данных о пользователе
+		public function getUserData(userID:String, callback:Function):void
+		{
+			throw("Abstract method getUserData(userID:String, callback:Function) must be overriden");
+		}
+		
+		// получение данных о типе объекта на карте
+		public function getItemTypeData(itemType:String, callback:Function):void
+		{
+			throw("Abstract method getItemTypeData(itemType:String, callback:Function) must be overriden");
+		}
+		
+		// ------ user api
+		
 		// установка нового объекта в заданное место на карте пользователя
-		protected function _placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean
+		public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return false;
-			if (user.addItem(itemType, xpos, ypos)) {
-				client.connection.send("placeItem", { item_type: itemType, x: xpos, y: ypos }, callback);
-				return true;
-			}
-			return false;
+			return user.addItem(itemType, xpos, ypos);
 		}
 		
 		// перемещение объекта в заданное место на карте пользователя
-		protected function _moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
+		public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return false;
-			if (user.moveItem(itemID, xpos, ypos)) {
-				client.connection.send("moveItem", { id: itemID, x: xpos, y: ypos }, callback);
-				return true;
-			}
-			return false;
+			return user.moveItem(itemID, xpos, ypos);
 		}
 		
 		// сбор готового объекта
-		protected function _collectItem(client:Client, itemID:String, callback:Function):Boolean
+		public function collectItem(client:Client, itemID:String, callback:Function):Boolean
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return false;
-			if (user.collectItem(itemID)) {
-				client.connection.send("collectItem", { id: itemID }, callback);
-				return true;
-			}
-			return false;
+			return user.collectItem(itemID);
 		}
 		
 		// инкремент уровня всех объектов на карте пользователя
-		protected function _upgradeAllItems(client:Client, callback:Function):Boolean
+		public function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array
 		{
 			var user:User = client.currentUser;
-			if (!user || !user.id) return false;
+			if (!user || !user.id) return null;
 			var itemIDs:Array = user.getAllItemIDs();
-			if (itemIDs.length == 0) return true;
+			if (itemIDs.length == 0) return itemIDs;
 			var upgradedItems:Array = user.upgradeItems(itemIDs);
-			if (upgradedItems.length > 0)
-				client.connection.send("upgradeAllItems", upgradedItems, callback);
-			return true;
+			return upgradedItems;
 		}
 		
 		// получение запроса от сервера
-		public function call(client:Client, method:String, data:Object, callback:Function):void 
+		public function call(client:Client, method:String, data:*, callback:Function):void 
 		{
 			throw("Abstract method call(method:String, data:Object, callback:Function) must be overriden");
 		}

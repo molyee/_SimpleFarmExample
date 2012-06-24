@@ -100,9 +100,12 @@ package net.protocols
 			if (_busy || !isOpen) return;
 			_busy = true;
 			if (!byteArray) {
-				if (_queue.length == 0)
+				if (_queue.length == 0) {
+					_busy = false;
 					return;
-				byteArray = _queue.shift();
+				}
+				var data:Object = _queue.shift();
+				byteArray = data as ByteArray;
 			}
 			_socket.writeInt(byteArray.length);
 			_socket.writeBytes(byteArray);
@@ -117,13 +120,13 @@ package net.protocols
 		protected function connectHandler(event:Event = null):void
 		{
 			_reconnectTimeout = START_RECONNECT_TIMEOUT;
-			if (_queue.length > 0)
-				sendNext();
 			_connecting = false;
 			dispatchEvent(new Event(Event.CONNECT));
+			if (_queue.length > 0)
+				sendNext();
 		}
 		
-		protected var _bytesTotal:uint = 0; // объем ожидаемого пакета
+		protected var _bytesTotal:Number = 0; // объем ожидаемого пакета
 		protected var _currentPackage:ByteArray; // текущий пакет
 		// обработчик получения сокетных данных
 		protected function dataReceiveHandler(event:ProgressEvent):void
@@ -135,16 +138,16 @@ package net.protocols
 			}
 			if (!_socket.bytesAvailable) return;
 			var numBytes:uint = Math.min(_bytesTotal - _currentPackage.length, _socket.bytesAvailable);
-			_socket.readBytes(_currentPackage, 0, numBytes);
+			_socket.readBytes(_currentPackage, _currentPackage.length, numBytes);
 			if (_currentPackage.length == _bytesTotal) {
 				// завершим работу с пакетом
 				var byteArray:ByteArray = _currentPackage;
 				_currentPackage = null;
 				_bytesTotal = 0;
-				// парсим данные пакета
+				var object:*;
 				byteArray.uncompress();
 				var data:String = byteArray.readUTFBytes(byteArray.length);
-				var object:* = _serializer.decode(data);
+				object = _serializer.decode(data);
 				// передаем готовый объект получателю
 				_receiveHandler(object);
 			}

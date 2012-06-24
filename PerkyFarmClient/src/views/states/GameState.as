@@ -4,6 +4,7 @@ package views.states
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
+	import flash.utils.ByteArray;
 	import models.Model;
 	
 	import views.map.MapView;
@@ -20,8 +21,8 @@ package views.states
 		
 		public function GameState(stateID:String, holder:DisplayObjectContainer, controller:ClientConnectionController)
 		{
-			_mapView = new MapView(30);
-			_controlPanel = new GameControlPanel();
+			_mapView = new MapView(controller, 30);
+			_controlPanel = new GameControlPanel(controller);
 			
 			// создание списка активных объектов состояния
 			var inners:Vector.<DisplayObject> = new Vector.<DisplayObject>();
@@ -31,10 +32,12 @@ package views.states
 			// получение данных о контроллере
 			_controller = controller;
 			
-			// инициализация модели
+			// создание модели
 			_model = Model.instance;
 			_model.addEventListener(Event.INIT, modelInitHandler);
 			_model.init(_controller);
+			
+			_controller.getResource("/media/background.jpg", _mapView.setBackgroundTexture);
 			
 			super(stateID, holder, inners);
 		}

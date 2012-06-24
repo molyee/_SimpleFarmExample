@@ -11,8 +11,8 @@ package views.map
 	 */
 	public class BackgroundLayer
 	{
-		[Embed(source="../../../media/grass_texture.jpg")]
-		public static const DEFAULT_TEXTURE_CLASS:Class; // текстура фона по умолчанию
+		//[Embed(source="../../../media/grass_texture.jpg")]
+		//public static const DEFAULT_TEXTURE_CLASS:Class; // текстура фона по умолчанию
 		
 		// контейнер для текстуры
 		protected var _holder:DisplayObjectContainer;
@@ -39,9 +39,8 @@ package views.map
 		{
 			_holder = holder;
 			_background = new Bitmap();
-			if (!texture)
-				texture = (new DEFAULT_TEXTURE_CLASS() as Bitmap).bitmapData;
-			setTexture(texture);
+			if (texture)
+				setTexture(texture);
 			setSize(width, height);
 		}
 		
@@ -67,16 +66,12 @@ package views.map
 		// показ фона
 		public function show():void
 		{
-			if (_width == 0 || _height == 0 || _texture == null) {
-				CONFIG::debug {
-					throw("Background texture not prepared");
-				}
-				return;
-			}
 			if (_showing) return;
 			_showing = true;
-			update();
 			_holder.addChildAt(_background, 0);
+			if (_width == 0 || _height == 0 || _texture == null)
+				return;
+			update();
 		}
 		
 		// скрытие фона (удаление из списка отображения)
