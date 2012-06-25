@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- build.xml -->
+<project name="FarmClient" basedir="../" default="compile">
+	
+	<!-- ============================== -->
+	<!--  Configuration -->
+	<!-- ============================== -->
+
+	<!-- Loading configuration file -->
+	<property file="${basedir}/build/build.properties" />
+
+	<!-- Setup Flex Ant Resources -->
+	<property name="FLEX_HOME" location="${flex.sdk}" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+
+	<!-- ============================== -->
+	<!--  Clean and Init Targets -->
+	<!-- ============================== -->
+
+	<target name="clean" description="Removes artifacts from previous builds">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${bin.dir}" defaultexcludes="false">
+				<include name="**/*" />
+			</fileset>
+			<fileset dir="${test.bin.dir}" defaultexcludes="false">
+				<include name="**/*" />
+			</fileset>
+			<fileset dir="${air.out.dir}" defaultexcludes="false">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="init" description="Initializes project and destination folders">
+			<echo message="Project: ${ant.project.name}" />
+			<echo message="Flex SDK: ${FLEX_HOME}" />
+		
+			<!-- Create direectories -->
+			<mkdir dir="${bin.dir}" />
+			<mkdir dir="${test.bin.dir}" />
+			<mkdir dir="${air.out.dir}" />
+	</target>
+
+	<!-- ======================================= -->
+	<!-- Compile targets -->
+	<!-- ======================================= -->
+
+	<target name="compile" depends="init" description="Compile the application .swf file">
+		<mxmlc file="${src.dir}/${application.name}.as" 
+			output="${bin.dir}/${swf.file.name}.swf" configname="air"
+			debug="true" optimize="true">
+			
+			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
+			
+			<!-- Compiler constants -->
+			<define name="CONFIG::debug" value="${debug.mode}"/>
+			<define name="CONFIG::release" value="${release.mode}"/>
+			
+			<!-- Source paths -->
+			<source-path path-element="${src.dir}" />
+			<source-path path-element="${test.src.dir}" />
+
+			<!-- The TestRunner needs the flexunit libraries in the build/libs folder -->
+			<library-path dir="${build.libs.dir}" append="true">
+				<include name="*.swc" />
+			</library-path>
+			
+		</mxmlc>
+	</target>
+	
+	<target name="air" depends="compile" description="Create the AIR package for application">
+		<exec executable="${FLEX_HOME}/bin/adt.bat" failonerror="true">
+			<arg line="-package" />
+			<arg line="-storetype pkcs12" />
+			<arg line="-keystore ${air.out.dir}/FarmClient.p12" />
+			<arg line="-storepass 5tup1d" />
+			<arg line="${air.out.dir}/FarmClient.air" />
+			<arg line="${air.out.dir}/application.xml" />
+			<arg line="-C ${bin.dir}/${swf.file.name}.swf" />
+		</exec>
+	</target>
+	
+	<!-- ======================================= -->
+	<!-- Running targets -->
+	<!-- ======================================= -->
+
+	<target name="run" depends="compile" description="Launch .swf application">
+		<echo message="Launching ${bin.dir}/${swf.file.name}.swf" />
+		<exec executable="${flash.debugger}" dir="${bin.dir}" spawn="true">
+			<arg value="${bin.dir}/${swf.file.name}.swf" />
+		</exec>
+	</target>
+	
+</project>

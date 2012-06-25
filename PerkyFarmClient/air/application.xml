@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<application xmlns="http://ns.adobe.com/air/application/3.2"> 
+    <id>FarmClient</id> 
+    <versionNumber>1.0.0</versionNumber> 
+    <filename>FarmClient</filename> 
+    <name>Perky farm client application</name> 
+     <description> 
+        <text xml:lang="en">Simple light farm-game application.</text> 
+        <text xml:lang="ru">Простое и легкое игровое приложение в жанре фермы.</text>
+    </description> 
+    <copyright>Copyright (c) 2010 Alex Sarapulov</copyright> 
+    <initialWindow> 
+        <title>Farm client</title> 
+        <content> 
+            farm_client.swf 
+        </content> 
+    </initialWindow>
+</application>

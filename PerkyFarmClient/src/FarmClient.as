@@ -11,28 +11,49 @@ package
 	import views.states.GameState;
 	import views.states.LoginState;
 	
-	[SWF(width="1000", height="600")]
 	/**
+	 * Основной класс запуска приложения обеспечивающий смену состояний
+	 * приложения (страница авторизации, игровой процесс и т.д.), а также
+	 * создающий соединение с сервером
 	 * ...
 	 * @author Alex Sarapulov
+	 * 
 	 */
+	[SWF(width="1000", height="600")]
 	public class FarmClient extends Sprite
 	{
-		// список состояний приложения (визуальные объекты сменяющие друг друга)
+		/**
+		 * список состояний приложения (визуальные объекты сменяющие друг друга) 
+		 * @private
+		 */
 		private var _states:Object;
-		// текущее состояние приложения
+		/** 
+		 * текущее состояние приложения
+		 * @private
+		 */
 		private var _currentState:IBaseState;
-		// контроллер соединения с сервером
+		/** 
+		 * контроллер соединения с сервером
+		 * @private
+		 */
 		private var _connection:ClientConnectionController;
 		
-		// -- конструктор
+		/**
+		 * Конструктор класса приложения
+		 * - создает соединение с сервером,
+		 * - инициализирует возможные состояния приложения
+		 * - запускает инициализацию приложения
+		 */
 		public function FarmClient()
 		{
+			// создаем обобочку
 			super();
 			
+			// создаем соединение с сервером
 			_connection = new ClientConnectionController();
 			_connection.connect(Settings.SERVER_HOST, Settings.SERVER_PORT);
 			
+			// инициализируем состояния
 			_states = {
 				"loginState": new LoginState("loginState", this, _connection),
 				"gameState": new GameState("gameState", this, _connection)
@@ -40,26 +61,38 @@ package
 			for each (var state:IBaseState in _states) {
 				state.addEventListener(Event.COMPLETE, stateCompleteHandler);
 			}
-			
+			// переходим к точке входа сразу или асинхронно
 			if (stage) init();
 			else this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
-		
-		// инициализация сцены и установка состояния
+		 
+		/**
+		 * Инициализация сцены и установка состояния по умолчанию
+		 * 
+		 * @param event Событие готовности и доступности сцены приложения
+		 * @private
+		 */
 		private function init(event:Event = null):void
 		{
 			if (this.hasEventListener(Event.ADDED_TO_STAGE))
 				this.removeEventListener(Event.ADDED_TO_STAGE, init);
-			
+			// устанавливаем параметры сцены
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.addEventListener(Event.RESIZE, stageResizeHandler);
 			stage.addEventListener(Event.FULLSCREEN, stageFullscreenHandler);
-			
+			// устанавливаем состояние
 			setState("loginState");
 		}
 		
-		// обработчик события завершения состояния
+		/**
+		 * Обработчик события завершения состояния
+		 * 
+		 * @param event Событие, отправленное экземпляром класса состояния,
+		 * объявляющее о том, что состояние завершило свою работы и необходимо
+		 * перейти к следующему состоянию (какому - определяет текущий класс)
+		 * @private
+		 */
 		private function stateCompleteHandler(event:Event):void
 		{
 			var state:IBaseState = event.currentTarget as IBaseState;
@@ -73,15 +106,27 @@ package
 			}
 		}
 		
-		// получение объекта состояния
+		/**
+		 * Получение объекта состояния
+		 * 
+		 * @param stateID Идентификатор состояния (его наименование)
+		 * @return Текущий экземпляр запрошенного состояния
+		 * 
+		 */
 		private function getState(stateID:String):IBaseState
 		{
 			return _states[stateID] as IBaseState;
 		}
 		
-		// установка состояния
+		/**
+		 * Активация состояния приложения (переход от старого состояния к новому)
+		 * 
+		 * @param stateID Идентификатор состояния (его наименование)
+		 * 
+		 */
 		public function setState(stateID:String):void
 		{
+			trace("set state " + stateID);
 			var state:IBaseState = getState(stateID);
 			if (state == _currentState) return;
 			if (_currentState != null) {
@@ -94,13 +139,23 @@ package
 			_currentState.start();
 		}
 		
-		// обработчик событий перехода в полноэкранный режим и обратно в оконный
+		/**
+		 * Ообработчик событий перехода в полноэкранный режим и обратно в оконный
+		 * 
+		 * @param event Стандартное событие перехода в полноэкранный режим
+		 * 
+		 */
 		private function stageFullscreenHandler(event:Event):void
 		{
 			stageResizeHandler(event);
 		}
 		
-		// обработчик события изменения размера сцены (окна)
+		/**
+		 * Обработчик события изменения размера сцены (окна)
+		 * 
+		 * @param event Событие уведомляющее о изменении размера сцены (окна)
+		 * 
+		 */
 		private function stageResizeHandler(event:Event = null):void
 		{
 			if (!_currentState || !stage) return;
