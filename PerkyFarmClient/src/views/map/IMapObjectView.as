@@ -1,5 +1,6 @@
 package views.map 
 {
+	import models.Item;
 	import models.ItemType;
 	
 	/**
@@ -28,6 +29,9 @@ package views.map
 		
 		// получение данных о типе объекта
 		function get itemType():ItemType;
+		
+		// получение привязанного объекта карты
+		function get mapObject():Item;
 		
 		// получение идентификатора объекта
 		function get itemID():String;

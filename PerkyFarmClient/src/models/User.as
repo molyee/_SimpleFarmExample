@@ -1,5 +1,6 @@
 package models
 {
+	import flash.geom.Point;
 	import models.Item;
 	import models.VObject;
 	
@@ -86,8 +87,12 @@ package models
 		public function moveItem(itemID:String, xpos:int, ypos:int):Boolean
 		{
 			var item:Item = getItem(itemID);
-			if (!item || !setItemPosition(item, xpos, ypos))
+			var oldPosition:Point = new Point(item.x, item.y);
+			clearItemPosition(item);
+			if (!item || !setItemPosition(item, xpos, ypos)) {
+				setItemPosition(item, oldPosition.x, oldPosition.y);
 				return false;
+			}
 			return true;
 		}
 		
@@ -191,7 +196,7 @@ package models
 		}
 		
 		// проверка свободного места для установки целевого объекта
-		public function checkEmptyPositions(x:int, y:int, size:Array, itemID:String = null):Boolean
+		public function checkEmptyPositions(x:int, y:int, size:Array):Boolean
 		{
 			var mapLink:Object = map;
 			var i0:int = x - int(size[0] / 2) - 1;
@@ -201,8 +206,7 @@ package models
 			for (var i:int = i0; i < n; i++) {
 				for (var j:int = j0; j < m; j++) {
 					var item:Item = mapLink[i + "_" + j];
-					if (!item || item.id == itemID)
-						continue;
+					if (!item) continue;
 					return false;	
 				}
 			}

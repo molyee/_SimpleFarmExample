@@ -27,11 +27,11 @@ package views.panels
 			_itemSelector = new ItemSelectPanel();
 			_itemSelector.addEventListener(Event.SELECT, selectItemTypeHandler);
 			
-			_cancelButton = new GLabeledButton("cancel", "Cancel", 100, 30);
+			_cancelButton = new GLabeledButton("cancel", "Cancel", 100, 35);
 			_cancelButton.addEventListener(MouseEvent.CLICK, cancelPlacingControl);
 			this.addChild(_cancelButton);
 			
-			_moveButton = new GLabeledButton("move", "Move", 100, 30);
+			_moveButton = new GLabeledButton("move", "Move", 100, 35);
 			_moveButton.addEventListener(MouseEvent.CLICK, moveItemControl);
 			this.addChild(_moveButton);
 			
@@ -101,7 +101,7 @@ package views.panels
 					_moveButton.hide();
 					_cancelButton.show();
 				} else {
-					_moveButton.label = "Cancel";
+					_moveButton.label = "Complete";
 					_moveButton.show();
 					_cancelButton.hide();
 				}
@@ -133,7 +133,7 @@ package views.panels
 			_moveButton.y = 20;
 			
 			_upgradeButton.x = 15;
-			_upgradeButton.y = 60;
+			_upgradeButton.y = 70;
 		}
 	}
 }

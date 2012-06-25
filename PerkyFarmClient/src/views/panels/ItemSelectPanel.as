@@ -1,9 +1,9 @@
 package views.panels 
 {
 	import controllers.IConnectionController;
+	import display.utils.BitmapCache;
 	import events.ObjectEvent;
 	import flash.display.Bitmap;
-	import flash.display.BitmapData;
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -11,7 +11,6 @@ package views.panels
 	import flash.events.MouseEvent;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	import models.ItemType;
 	import views.controls.buttons.ItemTypeIcon;
 	
@@ -48,10 +47,7 @@ package views.panels
 			shape.graphics.beginFill(0x33cc00);
 			shape.graphics.drawRoundRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT + PADDING_Y, PADDING_X, PADDING_Y);
 			shape.graphics.endFill();
-			var bounds:Rectangle = shape.getBounds(shape);
-			var bitmapData:BitmapData = new BitmapData(bounds.width, bounds.height, true, 0x00000000);
-			bitmapData.draw(shape, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));
-			var background:Bitmap = new Bitmap(bitmapData);
+			var background:Bitmap = BitmapCache.drawBitmap(shape);
 			_holder.addChild(background);
 			
 			if (stage) init();

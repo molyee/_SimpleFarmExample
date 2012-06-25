@@ -1,8 +1,8 @@
 package views.map 
 {
+	import display.utils.BitmapCache;
 	import display.utils.Isometric;
 	import flash.display.Bitmap;
-	import flash.display.BitmapData;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.display.Shape;
@@ -56,8 +56,8 @@ package views.map
 		protected var _lastTargetCell:Point; // предыдущая целевая позиция
 		protected var _lastColoredPositions:Array; // предыдущие залитые ячейки
 		
-		protected var _coloredBitmap:Bitmap;
-		protected var _coloredDrawer:Shape;
+		protected var _coloredBitmap:Bitmap; // растровый объект содержащий подсвеченные ячейки
+		protected var _coloredDrawer:Shape; // векторный объект, рисующий картинку подсвеченных ячеек
 		
 		
 		// ячейки, требующие заливки
@@ -131,10 +131,7 @@ package views.map
 				shape.graphics.lineTo(endPoint.x, endPoint.y);
 			}
 			// создаем растровую карту ячеек
-			var bounds:Rectangle = shape.getBounds(shape);
-			var bitmapData:BitmapData = new BitmapData(_normalWidth + 1, _normalHeight + 1, true, 0x00000000);
-			bitmapData.draw(shape, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));
-			_cellsBounds.bitmapData = bitmapData;
+			_cellsBounds.bitmapData = BitmapCache.drawBitmapData(shape);
 			_cellsBounds.x = Isometric.PADDING_X;
 			_cellsBounds.y = Isometric.PADDING_Y;
 		}
@@ -171,7 +168,7 @@ package views.map
 			if (_lastTargetCell && _lastTargetCell.x == targetCell.x && _lastTargetCell.y == targetCell.y)
 				return;
 			
-			trace(targetCell.x, targetCell.y);
+			//trace(targetCell.x, targetCell.y);
 			_currentObject.setPosition(targetCell.x + 1, targetCell.y);
 				
 			var positions:Array = getPositions(targetCell, _currentObject);
@@ -197,33 +194,18 @@ package views.map
 			return normalPosition;
 		}
 		
-		// проверка диапазона ячеек на отсутствие объектов в них
-		public function checkPath(path:Rectangle):Boolean
-		{
-			var i0:int = path.x;
-			var j0:int = path.y;
-			var n:int = i0 + path.width;
-			var m:int = j0 + path.height;
-			for (var i:int = i0; i < n; i++) {
-				for (var j:int = j0; j < m; j++) {
-					if (!checkPosition(i, j))
-						return false;
-				}
-			}
-			return true;
-		}
-		
 		// проверка на отсутствие объектов в ячейке
-		protected function checkPosition(xpos:int, ypos:int):Boolean
+		protected function checkPosition(xpos:int, ypos:int, ignoredObject:* = null):*
 		{
-			return getObject(xpos, ypos) == null;
+			var cellObject:* = getObject(xpos, ypos);
+			return cellObject == null || cellObject == ignoredObject;
 		}
 		
 		// взятие объекта, находящегося в ячейке
 		public function getObject(xpos:int, ypos:int):*
 		{
 			if (xpos < 0 || xpos >= _size || ypos < 0 || ypos >= _size)
-				return false;
+				return null;
 			var object:* = _objectsMap[xpos + "_" + ypos];
 			return object;
 		}
@@ -249,7 +231,7 @@ package views.map
 		{
 			if (!positions || positions.length == 0) return;
 			for each (var pos:Point in positions) {
-				if (checkPosition(pos.x, pos.y))
+				if (checkPosition(pos.x, pos.y, _currentObject.mapObject))
 					setPositionColor(pos.x, pos.y, ENABLED_COLOR, ENABLED_ALPHA);
 				else
 					setPositionColor(pos.x, pos.y, BUSY_COLOR, BUSY_ALPHA);
@@ -271,6 +253,7 @@ package views.map
 			delete _coloredPositions[xpos + "_" + ypos];
 		}
 		
+		// отрисовка ячеек, которым назначен цвет
 		protected function drawColoredCells():void
 		{
 			_coloredDrawer.graphics.clear();
@@ -283,13 +266,12 @@ package views.map
 				drawCell(_coloredDrawer.graphics, int(p[0]), int(p[1]), colorData[0], colorData[1]);
 			}
 			var bounds:Rectangle = _coloredDrawer.getBounds(_coloredDrawer);
-			var bitmapData:BitmapData = new BitmapData(bounds.width + 1, bounds.height + 1, true, 0x00000000);
-			bitmapData.draw(_coloredDrawer, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));
-			_coloredBitmap.bitmapData = bitmapData;
+			_coloredBitmap.bitmapData = BitmapCache.drawBitmapData(_coloredDrawer, bounds);
 			_coloredBitmap.x = bounds.x;
 			_coloredBitmap.y = bounds.y;
 		}
 		
+		// рисование одной ячейки (ромба)
 		protected function drawCell(graphics:Graphics, xpos:int, ypos:int, color:uint, alpha:Number = 1):void
 		{
 			var v:Vector.<Point> = new Vector.<Point>(4);

@@ -42,9 +42,9 @@ package views.map
 		
 		// позиция объекта в сетке ячеек
 		protected var _xpos:int;
-		public function get xpos():int { return _mapObject.x; }
+		public function get xpos():int { return _xpos; }
 		protected var _ypos:int;
-		public function get ypos():int { return _mapObject.y; }
+		public function get ypos():int { return _ypos; }
 		
 		// триггер доступности объекта карты
 		public function get enabled():Boolean { return _mapObject.enabled; }
@@ -69,13 +69,13 @@ package views.map
 		{
 			_skins = { };
 			_mapObject = mapObject;
-			update();
 			
 			this.addEventListener(MouseEvent.CLICK, clickHandler);
 			this.addEventListener(MouseEvent.MOUSE_OVER, mouseOverHandler);
 			this.addEventListener(MouseEvent.ROLL_OUT, mouseOutHandler);
 			
 			_mapObject.addEventListener(Event.CHANGE, update);
+			update();
 		}
 		
 		// обработчик события клика мыши по визуальному объекту
@@ -126,8 +126,8 @@ package views.map
 		// обновить данные визуализации
 		public function update(event:Event = null):void
 		{
-			if (xpos != _xpos || ypos != _ypos)
-				setPosition(xpos, ypos);
+			if (mapObject.x != _xpos || mapObject.y != _ypos)
+				setPosition(mapObject.x, mapObject.y);
 			if (_mapObject.level != _level)
 				setLevel(_mapObject.level);
 		}

@@ -1,5 +1,6 @@
 package views.map 
 {
+	import display.utils.BitmapCache;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObjectContainer;
@@ -92,9 +93,7 @@ package views.map
 			shape.graphics.drawRect(0, 0, _width, _height);
 			shape.graphics.endFill();
 			
-			var bitmapData:BitmapData = new BitmapData(_width, _height, false, 0xffffff);
-			bitmapData.draw(shape);
-			_background.bitmapData = bitmapData;
+			_background.bitmapData = BitmapCache.drawBitmapData(shape);
 		}
 	}
 

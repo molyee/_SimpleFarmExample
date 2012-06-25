@@ -4,6 +4,7 @@ package views.map
 	import display.utils.ColorMatrix;
 	import display.utils.Isometric;
 	import flash.geom.Point;
+	import models.Item;
 	import models.ItemType;
 	import models.SkinData;
 	
@@ -34,6 +35,7 @@ package views.map
 		
 		public function get itemID():String { return null; }
 		
+		public function get mapObject():Item { return null; }
 		
 		protected var _itemType:ItemType;
 		public function get itemType():ItemType { return _itemType; }

@@ -48,7 +48,7 @@ package views.map
 		// заместитель строящегося объекта
 		protected var _currentMapObject:IMapObjectView;
 		
-		protected var _movingObject:Boolean;
+		protected var _moving:Boolean;
 		
 		protected var _items:Object = { };
 		
@@ -96,13 +96,16 @@ package views.map
 		{
 			if (_currentState == state) return;
 			_currentState = state;
+			itemsLayer.mouseChildren = _currentState == NORMAL_STATE;
 			if (state == PLACING_STATE) {
 				createSurrogate(data as ItemType);
-			} else if (state == MOVING_STATE) {
-				trace(state);
 			} else {
-				stopMovingObject();
+				if (state != MOVING_STATE)
+					stopMovingObject();
+				else
+					_moving = false;
 			}
+			trace("set map state", state);
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
@@ -123,16 +126,24 @@ package views.map
 				if ((_currentMapObject as DisplayObject).parent)
 					(_currentMapObject as DisplayObject).parent.removeChild(_currentMapObject as DisplayObject);
 			} else {
-				
+				var mapObjectView:MapObjectView = _currentMapObject as MapObjectView;
+				mapObjectView.update();
 			}
 			_currentMapObject = null;
+		}
+		
+		protected function putCurrentObject():void
+		{
+			var mapObjectView:MapObjectView = _currentMapObject as MapObjectView;
+			var result:Boolean = _controller.moveItem(null, mapObjectView.itemID, mapObjectView.xpos, mapObjectView.ypos, moveHandler);
+			return;
 		}
 		
 		
 		// обработчик события клика по сцене
 		protected function clickHandler(event:MouseEvent):void
 		{
-			trace("clicked");
+			trace("clicked in state", _currentState);
 			if (_currentState == NORMAL_STATE)
 				return;
 			if (_currentState == PLACING_STATE) {
@@ -141,10 +152,13 @@ package views.map
 				var result:Boolean = _controller.getItem(null, itemID, place);
 				return;
 			} else if (_currentState == MOVING_STATE) {
-				if (_movingObject) {
+				if (_moving) {
 					itemID = _currentMapObject.itemID;
-					result = _controller.moveItem(null, itemID, _currentMapObject.xpos, _currentMapObject.ypos, placeHandler);
-					stopMovingObject(result);
+					var xpos:int = _currentMapObject.xpos;
+					var ypos:int = _currentMapObject.ypos;
+					result = _controller.moveItem(null, itemID, xpos, ypos, placeHandler);
+					if (result) stopMovingObject(result);
+					else _currentMapObject.setPosition(xpos, ypos);
 					return;
 				} else {
 					var cell:Point = tilesLayer.getTargetCell(tilesLayer.mouseX, tilesLayer.mouseY);
@@ -204,13 +218,12 @@ package views.map
 		{
 			var mapObjectView:MapObjectView = event.currentTarget as MapObjectView;
 			var result:Boolean = _controller.collectItem(null, mapObjectView.itemID, collectHandler);
-			if (result)
-				dropItemHander(mapObjectView.itemID);
+			if (result) dropItemHander(mapObjectView.itemID);
 		}
 		
 		protected function movingChangeMapObjectHandler(event:Event):void
 		{
-			if (_movingObject) return;
+			if (_moving) return;
 			var mapObjectView:MapObjectView = event.currentTarget as MapObjectView;
 			if (!mapObjectView.moving)
 				return;
@@ -223,16 +236,17 @@ package views.map
 		
 		protected function startMovingObject(object:IMapObjectView):void
 		{
-			_movingObject = true;
+			_moving = true;
 			_currentMapObject = object;
 			tilesLayer.setCheckingObject(object);
 		}
 		
 		protected function stopMovingObject(save:Boolean = false):void
 		{
-			dropCurrentObject();
+			if (!save) dropCurrentObject();
+			else putCurrentObject();
 			tilesLayer.clearCheckingObject();
-			_movingObject = false;
+			_moving = false;
 		}
 		
 		
