@@ -2,8 +2,8 @@ package views.map
 {
 	import display.ImageLoader;
 	import display.utils.ColorMatrix;
-	import display.utils.Isometric;
 	import flash.geom.Point;
+	import math.Isometric;
 	import models.Item;
 	import models.ItemType;
 	import models.SkinData;

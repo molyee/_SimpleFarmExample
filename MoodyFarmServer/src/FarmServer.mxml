@@ -15,6 +15,8 @@
 			import data.DBConnection;
 			import data.ServerResourceStorage;
 			
+			import events.ObjectEvent;
+			
 			import logging.Logger;
 			
 			import models.Model;
@@ -28,12 +30,13 @@
 			
 			private var server:ServerSocket;
 			
-			[Bindable]
 			private var controller:ServerConnectionController;
 			
 			private var dbConnection:DBConnection;
 			
 			private var model:Model;
+			[Bindable]
+			private var users:Array = [];
 			
 			private var storage:ServerResourceStorage;
 			
@@ -57,6 +60,8 @@
 				// инициализация игровой модели
 				model = Model.instance;
 				model.addEventListener(Event.INIT, modelInitHandler);
+				model.addEventListener(Model.USER_ADDED, addUserHandler);
+				model.addEventListener(Model.USER_REMOVED, removeUserHandler);
 				model.init(controller);
 			}
 			
@@ -103,6 +108,18 @@
 				createServer();
 			}
 			
+			private function addUserHandler(event:ObjectEvent):void
+			{
+				users.push(event.data);
+			}
+			
+			private function removeUserHandler(event:ObjectEvent):void
+			{
+				var index:int = users.indexOf(event.data);
+				if (index == -1) return;
+				users.splice(index, 1);
+			}
+			
 			// обработчик события добавления нового клиента
 			private function clientConnectionHandler(event:ServerSocketConnectEvent):void
 			{
@@ -146,10 +163,9 @@
 	
 	<s:Panel x="10" y="10" width="540" height="560" title="users">
 		<mx:DataGrid x="10" y="10" width="520" height="510">
-			<mx:dataProvider>{controller.clients}</mx:dataProvider>
+			<mx:dataProvider>{users}</mx:dataProvider>
 			<mx:columns>
-				<mx:DataGridColumn headerText="IPV4" dataField="ipv4" width="80"/>
-				<mx:DataGridColumn headerText="UserID" dataField="id" width="50"/>
+				<mx:DataGridColumn headerText="UserID" dataField="id" width="120"/>
 				<mx:DataGridColumn headerText="Logged" dataField="logged" width="50"/>
 				<mx:DataGridColumn headerText="Items" dataField="numItems" width="50"/>
 				<mx:DataGridColumn headerText="Inventory" dataField="numInventoryItems" width="50"/>

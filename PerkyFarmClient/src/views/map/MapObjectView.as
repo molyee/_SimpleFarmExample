@@ -1,7 +1,6 @@
 package views.map 
 {
 	import display.BitmapDataLoader;
-	import display.utils.Isometric;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -11,6 +10,7 @@ package views.map
 	import flash.geom.Point;
 	import flash.ui.Mouse;
 	import flash.ui.MouseCursor;
+	import math.Isometric;
 	import models.Item;
 	import models.ItemType;
 	import models.SkinData;

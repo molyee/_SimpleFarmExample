@@ -111,7 +111,7 @@ package
 		 * 
 		 * @param stateID Идентификатор состояния (его наименование)
 		 * @return Текущий экземпляр запрошенного состояния
-		 * 
+		 * @private
 		 */
 		private function getState(stateID:String):IBaseState
 		{

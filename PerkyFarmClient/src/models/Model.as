@@ -2,19 +2,26 @@ package models
 {
 	import controllers.IConnectionController;
 	
+	import events.ObjectEvent;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	
 	import models.Item;
 
 	// события, генерируемые объектами класса
-	[Event(name="init", type="flash.events.Event")]
 	/**
 	 * ...
 	 * @author Alex Sarapulov
 	 */
+	[Event(name="init", type="flash.events.Event")]
+	[Event(name="userAdded", type="models.Model")]
+	[Event(name="userRemoved", type="models.Model")]
 	public class Model extends EventDispatcher
 	{
+		public static const USER_ADDED:String = "userAdded";
+		public static const USER_REMOVED:String = "userRemoved";
+		
 		// -- экземпляр-одиночка модели
 		public static const instance:Model = new Model();
 		
@@ -86,6 +93,7 @@ package models
 		public function addUser(user:User):void
 		{
 			_users[user.id] = user;
+			dispatchEvent(new ObjectEvent(USER_ADDED, user));
 		}
 		
 		// обновление данных пользователя
@@ -105,6 +113,7 @@ package models
 				return false;
 			user.dispose();
 			delete _users[userID];
+			dispatchEvent(new ObjectEvent(USER_REMOVED, user));
 			return true;
 		}
 		

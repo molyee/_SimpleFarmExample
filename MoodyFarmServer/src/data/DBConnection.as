@@ -24,14 +24,18 @@ package data
 		public function DBConnection()
 		{
 			users = SharedObject.getLocal("users");
-			users.clear();
+			CONFIG::debug {
+				users.clear();
+			}
 			users.client = this;
 			users.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorEventHandler);
 			users.addEventListener(SyncEvent.SYNC, syncEventHandler);
 			users.addEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
 			
 			items = SharedObject.getLocal("items");
-			items.clear();
+			CONFIG::debug {
+				items.clear();
+			}
 			items.client = this;
 			items.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorEventHandler);
 			items.addEventListener(SyncEvent.SYNC, syncEventHandler);

@@ -1,7 +1,6 @@
 package views.map 
 {
 	import display.utils.BitmapCache;
-	import display.utils.Isometric;
 	import flash.display.Bitmap;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
@@ -12,6 +11,7 @@ package views.map
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
+	import math.Isometric;
 	/**
 	 * ...
 	 * @author Alex Sarapulov

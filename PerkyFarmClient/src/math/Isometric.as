@@ -1,8 +1,6 @@
-package display.utils 
+package math 
 {
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	import flash.utils.Dictionary;
 	/**
 	 * ...
 	 * @author Alex Sarapulov
