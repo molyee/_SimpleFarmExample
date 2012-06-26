@@ -48,7 +48,7 @@
 	<target name="compile" depends="init" description="Compile the application .swf file">
 		<mxmlc file="${src.dir}/${application.name}.as" 
 			output="${bin.dir}/${swf.file.name}.swf" configname="air"
-			debug="true" optimize="true">
+			debug="${debug.mode}" optimize="true" incremental="true">
 			
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
 			

@@ -1,13 +1,14 @@
 package views.map
 {
 	import controllers.IConnectionController;
-	import display.utils.Isometric;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import math.DoubleIndexInserter;
+	import math.Isometric;
 	import models.Item;
 	import models.ItemType;
 	import models.Model;
@@ -63,12 +64,28 @@ package views.map
 			tilesLayer.objectsMap = _currentUser.map;
 		}
 		
+		protected var _indexInserter:DoubleIndexInserter;
+		
+		
 		// -- конструктор
 		public function MapView(controller:IConnectionController, size:int)
 		{
 			super();
 			
 			MapObjectView.MAP_VIEW = this;
+			
+			_indexInserter = new DoubleIndexInserter(0, 100, "v", 15, DoubleIndexInserter.LINEAR);
+			_indexInserter.insert({v:-5});
+			_indexInserter.insert({v:0});
+			_indexInserter.insert({v:49});
+			_indexInserter.insert({v:40});
+			_indexInserter.insert({v:51});
+			_indexInserter.insert({v:98});
+			_indexInserter.insert({v:99});
+			_indexInserter.insert({v:97});
+			_indexInserter.insert({v:100});
+			_indexInserter.insert({v:101});
+			
 			
 			_controller = controller;
 			_items = { };

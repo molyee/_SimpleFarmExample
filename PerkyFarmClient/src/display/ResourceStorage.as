@@ -7,56 +7,110 @@ package display
 	import net.protocols.BitDataProtocol;
 	import net.serialize.UTFBitSerializer;
 	/**
+	 * Класс реализует кеширующее хранилище статических или редко изменяющихся 
+	 * ресурсов. Выдача данных производится по первому запросу на получение 
+	 * ресурса, при этом загружается объект всего один раз, если до завершения загрузки
+	 * объекта другой процесс запросил загружаемый ресурс, то его обработчик получения
+	 * данных добавляется в список слушателей загрузки ресурса. По завершению загрузки
+	 * вызываются все обработчики ожидающие загруженный ресурс, сам же ресурс сохраняется
+	 * в хранилище (кеше), и позже может быть получен уже без загрузки, а напрямую из хранилища
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class ResourceStorage 
 	{
-		// хранилище загруженных ресурсов с доступом по url адресу
+		/**
+		 * Хранилище загруженных ресурсов с доступом по url адресу
+		 * @private
+		 */
 		private var _storage:Object;
 		
-		// слушатели, ожидающие загрузки ресурса
+		/**
+		 * Слушатели, ожидающие загрузки ресурса
+		 * @private
+		 */
 		private var _callbacks:Object;
 		
-		// загрузчик статики
+		/**
+		 * Загрузчик статики
+		 * @private
+		 */
 		private var _loader:BitDataProtocol;
 		
-		private var _queue:Array; // очередь запросов на получение статики
-		private var _busy:Boolean; // триггер ожидания
-		private var _currentUrl:String; // загружаемый ресурс
+		/**
+		 * Очередь запросов на получение статики
+		 * @private
+		 */
+		private var _queue:Array;
 		
-		// триггер подключения
+		/**
+		 * Триггер ожидания загрузки, значение true говорит о том, что
+		 * запрос на получение данных с сервера был отправлен, но данные еще не пришли
+		 * @private
+		 */
+		private var _busy:Boolean;
+		
+		/**
+		 * Загружаемый в данный момент ресурс
+		 * @private
+		 */
+		private var _currentUrl:String;
+		
+		/**
+		 * Триггер подключения, говорит о доступности удаленного объекта
+		 * @private
+		 */
 		private var _connected:Boolean;
 		
-		// сериализатор данных
+		/**
+		 * Объект обеспечивающих преобразование данных для передачи в протокол
+		 * и получения из канала данных
+		 * @private
+		 */
 		private var _serializer:UTFBitSerializer;
 		
-		// -- конструктор
+		/**
+		 * Конструктор хранилища данных
+		 * 
+		 */
 		public function ResourceStorage() 
 		{
+			// создаем списки
 			_storage = { };
 			_callbacks = { };
 			_queue = [];
 			
+			// создаем объект сериализатора
 			_serializer = new UTFBitSerializer();
 			
+			//инициализируем загрузчик растровых данных
 			BitmapDataLoader.STORAGE = this;
 			
+			// перед запуском попытки соединения с сервером выставляем флаг занятости
 			_busy = true;
 			
+			// соединяемся с сервером статики по битовому протоколу
 			_loader = new BitDataProtocol(resourceReceiveHandler, null, true);
 			_loader.addEventListener(Event.CLOSE, closeProtocolHandler);
 			_loader.addEventListener(Event.CONNECT, connectProtocolHandler);
 			connect();
 		}
 		
-		// запуск создания соединения
+		/**
+		 * Запуск создания соединения с сервером статики
+		 * 
+		 */
 		private function connect():void
 		{
 			_loader.connect(Settings.RESOURCE_HOST, Settings.RESOURCE_PORT);
 		}
 		
-		// обработчик события подключения к удаленному хосту
+		/**
+		 * Обработчик события подключения к удаленному хосту
+		 * 
+		 * @param	event Событие подключения к серверу
+		 * @private
+		 */
 		private function connectProtocolHandler(event:Event):void 
 		{
 			_connected = true;
@@ -65,23 +119,38 @@ package display
 				getNext();
 		}
 		
-		// обработчик закрытия протокола
+		/**
+		 * Обработчик закрытия протокола
+		 * 
+		 * @param	event Событие закрытие соединения с сервером
+		 * @private
+		 */
 		private function closeProtocolHandler(event:Event):void 
 		{
 			_connected = false;
 		}
 		
-		// получение ресурса (из кеша или с удаленного адреса)
+		/**
+		 * Запуск получения ресурса (из кеша или с удаленного адреса)
+		 * 
+		 * @param	url URL-адрес ресурса или уникальный идентификатор
+		 * @param	callback Обработчик получения данных ресурса
+		 * 
+		 */
 		public function getResource(url:String, callback:Function):void
 		{
 			var content:* = _storage[url];
-			if (content)
-				callback(content);
-			else
-				loadResource(url, callback);
+			if (content) callback(content);
+			else loadResource(url, callback);
 		}
 		
-		// загрузка контента с удаленного адреса
+		/**
+		 * Загрузка контента с удаленного адреса
+		 * 
+		 * @param	url URL-адрес ресурса или уникальный идентификатор
+		 * @param	callback Обработчик получения данных ресурса
+		 * @private
+		 */
 		private function loadResource(url:String, callback:Function):void
 		{
 			var callbacks:Array = _callbacks[url] as Array;
@@ -97,7 +166,13 @@ package display
 				_queue.push(url);
 		}
 		
-		// получение следующего в очереди ресурса
+		/**
+		 * Запуск следующей загрузки, находящейся в очереди или переданной напрямую
+		 * 
+		 * @param	url URL-адрес ресурса или уникальный идентификатор (если равен null,
+		 * то подразумевается, что URL-адрес будет взят из очереди запросов
+		 * 
+		 */
 		private function getNext(url:String = null):void
 		{
 			if (_busy || (!url && _queue.length == 0))
@@ -113,14 +188,25 @@ package display
 			sendUrl(_currentUrl);
 		}
 		
-		// отправка url(uuid) ресурса
+		/**
+		 * Отправка url(uuid) ресурса на сервер
+		 * 
+		 * @param	url Идентификатор ресурса
+		 * @private
+		 */
 		private function sendUrl(url:String):void
 		{
 			var urlByteArray:ByteArray = _serializer.encode(url) as ByteArray;
 			_loader.send(urlByteArray);
 		}
 		
-		// обработчик получения данных ресурса
+		/**
+		 * Обработчик получения данных ресурса
+		 * 
+		 * @param	protocol Протокол соединения с сервером
+		 * @param	data Полученные данные ресурса
+		 * @private
+		 */
 		protected function resourceReceiveHandler(protocol:BitDataProtocol, data:*):void
 		{
 			var result:*;
@@ -143,7 +229,13 @@ package display
 				getNext();
 		}
 		
-		// парсер XML данных
+		/**
+		 * Парсер XML-данных
+		 * 
+		 * @param	data Закодированные битовые данные, полученные с сервера
+		 * @return Раскодированный XML-объект
+		 * 
+		 */
 		protected function parseXML(data:ByteArray):XML
 		{
 			var str:String = data.readUTFBytes(data.length);
@@ -151,7 +243,13 @@ package display
 			return xml;
 		}
 		
-		// парсер изображений
+		/**
+		 * Парсер изображений
+		 * 
+		 * @param	data Закодированные битовые данные, полученные с сервера
+		 * @return Раскодированные растровые данные
+		 * 
+		 */
 		protected function parseBitmapData(data:ByteArray):BitmapData
 		{
 			var width:int = data.readInt();

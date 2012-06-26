@@ -7,23 +7,43 @@ package display.controls.buttons
 	import flash.ui.Mouse;
 	
 	/**
+	 * Базовый класс кнопки, в которой существует один отображаемый объект
+	 * и несколько настроек фильтрации для различных состояний кнопки (активна,
+	 * отключена, нажата)
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class BaseButton extends Sprite
 	{
 		// -- константы состояний кнопки
+		
+		/** Константа, отражающая нормальное состояние кнопки */
 		public static const NORMAL_STATE:String = "normalState";
+		/** Константа, отражающая активное состояние кнопки (наведение курсора мыши) */
 		public static const ACTIVE_STATE:String = "activeState";
+		/** Константа, отражающая состояние нажатия на кнопку */
 		public static const DOWN_STATE:String = "downState";
+		/** Константа, отражающая отключенное состояние кнопки */
 		public static const DISABLED_STATE:String = "disabledState";
 		
-		// данные о состояниях кнопки
+		/**
+		 * Список данных о состояниях кнопки
+		 * 
+		 */
 		protected var _states:Object;
 		
-		// триггер доступности
+		// поле доступности действий с кнопкой
 		protected var _enabled:Boolean = true;
+		/**
+		 * Триггер, обозначающий включена ли кнопка (true), или же любые действия с
+		 * кнопкой отключены (false)
+		 * 
+		 */
 		public function get enabled():Boolean { return _enabled; }
+		/**
+		 * Установка триггера включения/выключения кнопки
+		 * @private
+		 */
 		public function set enabled(value:Boolean):void {
 			if (_enabled == value) return;
 			_enabled = value;
@@ -32,20 +52,49 @@ package display.controls.buttons
 			updateState();
 		}
 		
-		// идентификатор кнопки
-		protected var _id:String;
+		protected var _id:String; // идентификатор кнопки
+		/**
+		 * Идентификатор или имя кнопки (не обязательно должно быть уникальным, но должно 
+		 * определять объект (только чтение)
+		 * 
+		 */
 		public function get id():String { return _id; }
 		
-		protected var _isOver:Boolean = false; // триггер нахождения мыши на кнопке
+		/**
+		 * Триггер активного состояния кнопки (курсор мыши на кнопке)
+		 * @private
+		 */
+		protected var _isOver:Boolean = false;
+		
+		/**
+		 * Триггер состояния нажатия на кнопки (клавиша мыши опущена)
+		 * @private
+		 */
 		protected var _isDown:Boolean = false; // триггер нажатия кнопки
 		
-		// обработчик клика по включенной кнопке (устанавливается извне)
-		protected var _handler:Function;
+		protected var _handler:Function; // обработчик клика по включенной кнопке
+		/**
+		 * Установка обработчика нажатия на включенную кнопки (только запись)
+		 * 
+		 */
 		public function set handler(value:Function):void { _handler = value; }
 		
-		protected var _normalState:DisplayObject; // визуальный объект кнопки
+		/**
+		 * Визуальный объект кнопки, на который в различных состояниях накладываются фильтры
+		 * @private
+		 */
+		protected var _normalState:DisplayObject;
 		
-		// -- конструктор (основное состояние дисплей объект, а остальные массивы фильтров)
+		/**
+		 * Конструктор кнопки
+		 * 
+		 * @param	id Идентификатор (наименование) кнопки
+		 * @param	normalState Визуальный объект кнопки
+		 * @param	disabledState Массив фильтров в отключенном состоянии
+		 * @param	activeState Массив фильтров в активном состоянии (курсор мыши наведен на кнопку)
+		 * @param	downState Массив фильтров в нажатом состоянии
+		 * 
+		 */
 		public function BaseButton(id:String, normalState:DisplayObject, disabledState:Array = null, activeState:Array = null, downState:Array = null)
 		{
 			super();
@@ -62,20 +111,28 @@ package display.controls.buttons
 			this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
 		}
 		
-		// обновление состояния
+		/**
+		 * Обновление визуального состояния кнопки на основе значений триггеров
+		 * @private
+		 */
 		protected function updateState():void
 		{
-			if (!_enabled)
+			if (!_enabled) // если отключена
 				this.filters = _states[DISABLED_STATE] as Array;
-			else if (_isDown)
+			else if (_isDown) // если нажата
 				this.filters = _states[DOWN_STATE] as Array;
-			else if (_isOver)
+			else if (_isOver) // если активна
 				this.filters = _states[ACTIVE_STATE] as Array;
-			else
+			else // если в состоянии простоя
 				this.filters = null;
 		}
 		
-		// обработчик опускания кнопки мыши
+		/**
+		 * Обработчик опускания кнопки мыши вниз
+		 * 
+		 * @param	event Событие нажатия кнопки мыши
+		 * @private
+		 */
 		protected function mouseDownHandler(event:MouseEvent):void
 		{
 			if (!_enabled) return;
@@ -83,7 +140,12 @@ package display.controls.buttons
 			updateState();
 		}
 		
-		// обработчик поднятия кнопки мыши
+		/**
+		 * Обработчик поднятия кнопки мыши вверх
+		 * 
+		 * @param	event События отпускания кнопки мыши
+		 * @private
+		 */
 		protected function mouseUpHandler(event:MouseEvent):void
 		{
 			if (!_enabled) return;
@@ -96,7 +158,12 @@ package display.controls.buttons
 			}
 		}
 		
-		// обработчик наведения кнопки мыши
+		/**
+		 * Обработчик наведения курсора мыши на кнопку
+		 * 
+		 * @param	event Событие наведения курсора
+		 * @private
+		 */
 		protected function rollOverHandler(event:MouseEvent):void
 		{
 			if (!_enabled) return;
@@ -105,7 +172,12 @@ package display.controls.buttons
 			updateState();
 		}
 		
-		// обработчик отведения кнопки мыши
+		/**
+		 * Обработчик уведения курсора мыши с кнопки
+		 * 
+		 * @param	event Событие уведения курсора
+		 * @private
+		 */
 		protected function rollOutHandler(event:MouseEvent):void
 		{
 			if (!_enabled) return;
@@ -115,7 +187,13 @@ package display.controls.buttons
 			updateState();
 		}
 		
-		// обработчик добавления кнопки в дисплей-лист
+		/**
+		 * Обработчик добавления кнопки в дисплей-лист. Он же инициализирует
+		 * начальное состояние кнопки и подписывает ее на события действий мыши
+		 * 
+		 * @param	event Событие добавление в дисплей-лист
+		 * 
+		 */
 		protected function addedToStageHandler(event:Event):void
 		{
 			// очистка прежнего состояния
@@ -129,7 +207,13 @@ package display.controls.buttons
 			this.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 		}
 		
-		// обработчик удаления кнопки из дисплей-листа
+		/**
+		 * Обработчик удаления кнопки из дисплей-листа. Он же сбрасывает фильтры, наложенные на
+		 * визуализацию кнопки, а также отписывает ее от событий действий мыши
+		 * 
+		 * @param	event Событие удаления из дисплей-листа
+		 * 
+		 */
 		protected function removedFromStageHandler(event:Event = null):void
 		{
 			this.filters = null;
@@ -140,21 +224,25 @@ package display.controls.buttons
 			this.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 		}
 		
-		// -- финализатор
+		/**
+		 * Деструктор объекта кнопки
+		 * 
+		 */
 		public function dispose():void
 		{
 			this.removeEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 			this.removeEventListener(Event.REMOVED_FROM_STAGE, removedFromStageHandler);
-			if (stage) {
+			if (stage) { // если кнопка отображается в дисплей-листе
 				if (_isOver) {
 					Mouse.cursor = "auto";
 				}
-				removedFromStageHandler();
-				parent.removeChild(this);
+				removedFromStageHandler();// отписываем от событий
+				parent.removeChild(this);// удаляем из списка визуализации
 			}
-			for (var key:String in _states) {
+			for (var key:String in _states) { // очищаем данные о состояниях
 				delete _states[key];
 			}
+			// обнуление прочих ссылочных данных
 			filters = null;
 			_states = null;
 			_handler = null;
