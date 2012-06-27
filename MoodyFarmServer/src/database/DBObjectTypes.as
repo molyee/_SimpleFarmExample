@@ -1,4 +1,4 @@
-package data
+package database
 {
 	public class DBObjectTypes
 	{

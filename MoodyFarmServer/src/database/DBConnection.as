@@ -1,4 +1,4 @@
-package data
+package database
 {
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
@@ -24,18 +24,18 @@ package data
 		public function DBConnection()
 		{
 			users = SharedObject.getLocal("users");
-			CONFIG::debug {
+			/*CONFIG::debug {
 				users.clear();
-			}
+			}*/
 			users.client = this;
 			users.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorEventHandler);
 			users.addEventListener(SyncEvent.SYNC, syncEventHandler);
 			users.addEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
 			
 			items = SharedObject.getLocal("items");
-			CONFIG::debug {
+			/*CONFIG::debug {
 				items.clear();
-			}
+			}*/
 			items.client = this;
 			items.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorEventHandler);
 			items.addEventListener(SyncEvent.SYNC, syncEventHandler);
