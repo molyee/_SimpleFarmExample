@@ -13,23 +13,41 @@ package net.connection
 	import net.serialize.XMLSerializer;
 	
 	/**
+	 * Класс клиента соединения
+	 * 
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class Client
 	{
-		// соединение у удаленным объектом
 		protected var _connection:DataConnection;
+		/**
+		 * Соединение у удаленным объектом
+		 * 
+		 */
 		public function get connection():DataConnection { return _connection; }
 		
-		// объект, у которого вызываются функции
+		/**
+		 * Ссылка на контроллер, у которого клиент может вызывать выполнение функций
+		 * 
+		 */
 		protected var _controller:IConnectionController;
 		
-		// объект пользователя соответствующего клиентскому соединению
 		protected var _currentUser:User;
+		/**
+		 * Объект пользователя, соответствующего клиентскому соединению
+		 * 
+		 */
 		public function get currentUser():User { return _currentUser; }
 		
-		// -- конструктор
+		/**
+		 * Конструктор клиента
+		 * 
+		 * @param	controller Ссылка на контроллер приложения
+		 * @param	socket Сокет соединения
+		 * @param	forceReconnection Триггер включения переподключения к удаленному хосту, true - клиент переподключается при разрыве соединения
+		 * 
+		 */
 		public function Client(controller:IConnectionController, socket:Socket = null, forceReconnection:Boolean = false) 
 		{
 			_controller = controller;
@@ -39,7 +57,10 @@ package net.connection
 			_connection = new DataConnection(connectionID, _controller.call, this, CompressedUTFDataProtocol, serializer, socket, forceReconnection);
 		}
 		
-		// -- финализатор
+		/**
+		 * Финализатор объекта
+		 * 
+		 */
 		public function dispose():void
 		{
 			_connection.close();

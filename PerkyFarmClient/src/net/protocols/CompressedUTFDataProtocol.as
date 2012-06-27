@@ -10,29 +10,68 @@ package net.protocols
 	import flash.utils.setTimeout;
 	import net.serialize.ISerializer;
 	
-	[Event(name="connect", type="flash.events.Event")]
-	[Event(name="close", type="flash.events.Event")]
 	/**
+	 * Класс протокол передающих строчные данные (JSON, XML, и пр.) в 
+	 * сжатом битовом формате
 	 * ...
 	 * @author Alex Sarapulov
 	 */
+	[Event(name="connect", type="flash.events.Event")]
+	[Event(name="close", type="flash.events.Event")]
 	public class CompressedUTFDataProtocol extends AbstactProtocol 
 	{
-		// скорость увеличения таймаута переподключения при неуспешном коннекте
+		/**
+		 * Мультиплайер времени переподключения к удаленному хосту
+		 * 
+		 */
 		public static var RECONNECT_TIMEOUT_MULTIPLIER:Number = 2;
-		// начальное значение таймаута переподключения
+		
+		/**
+		 * Начальное значение таймаута переподключения
+		 * 
+		 */
 		public static var START_RECONNECT_TIMEOUT:Number = 100;
 		
-		protected var _forceReconnection:Boolean; // true - запускать перезагрузку при сбое подключения
-		protected var _reconnectTimeout:int; // значение задержки при переподключении
-		protected var _timer:int = -1; // id таймаута переподключения
+		/**
+		 * Триггер запуска переподключения, true - запускать перезагрузку при сбое подключения
+		 * @private
+		 */
+		protected var _forceReconnection:Boolean;
 		
-		protected var _host:String; // хост подключения
-		protected var _port:uint; // порт подключения
+		/**
+		 * Значение задержки при переподключении
+		 * @private
+		 */
+		protected var _reconnectTimeout:int;
 		
-		// сокетное соединение
+		/**
+		 * id таймаута переподключения (нужен для удаления)
+		 * @private
+		 */
+		protected var _timer:int = -1;
+		
+		/**
+		 * Хост подключения
+		 * @private
+		 */
+		protected var _host:String;
+		
+		/**
+		 * Порт подключения
+		 * @private
+		 */
+		protected var _port:uint;
+		
 		protected var _socket:Socket;
+		/**
+		 * Сокетное соединение
+		 * 
+		 */
 		public function get socket():Socket { return _socket; }
+		/**
+		 * Установщик сокетного соединения
+		 * @private
+		 */
 		public function set socket(value:Socket):void {
 			clearSocket(); // если сокет существует, то очищаем
 			_socket = value;
@@ -41,16 +80,41 @@ package net.protocols
 			addListeners();
 		}
 		
-		// триггер доступности удаленного объекта
+		/**
+		 * Триггер доступности удаленного объекта
+		 * 
+		 */
 		override public function get isOpen():Boolean {
 			return _socket && _socket.connected;
 		}
 		
-		protected var _connecting:Boolean; // триггер процесса подключения
-		protected var _busy:Boolean; // триггер передачи пакета, true - буфер занят
-		protected var _queue:Array; // очередь запросов
+		/**
+		 * Триггер процесса подключения
+		 * @private
+		 */
+		protected var _connecting:Boolean;
 		
-		// -- конструктор
+		/**
+		 * Триггер передачи пакета, true - буфер занят
+		 * @private
+		 */
+		protected var _busy:Boolean;
+		
+		/**
+		 * Очередь отправленных цельных пакетов
+		 * @private
+		 */
+		protected var _queue:Array;
+		
+		/**
+		 * Конструктор класса протокола
+		 * 
+		 * @param	serializer Сериализатор данных (переводит данные в строковый формат и обратно в объект при получении ответа)
+		 * @param	receiveHandler Обработчик получения запроса или сообщения
+		 * @param	socket Сокет подключения
+		 * @param	forceReconnection Форсировать переподключение при потере соединения с удаленным хостом
+		 * 
+		 */
 		public function CompressedUTFDataProtocol(serializer:ISerializer, receiveHandler:Function, socket:Socket = null, forceReconnection:Boolean = false) 
 		{
 			_reconnectTimeout = START_RECONNECT_TIMEOUT;
@@ -61,7 +125,13 @@ package net.protocols
 			super(serializer, receiveHandler);
 		}
 		
-		// запуск соединения
+		/**
+		 * Запуск соединения
+		 * 
+		 * @param	host Хост соединения
+		 * @param	port Порт соединения
+		 * 
+		 */
 		override public function connect(host:String = null, port:* = null):void
 		{
 			if (_timer != -1) {
@@ -79,7 +149,12 @@ package net.protocols
 			}
 		}
 		
-		// передача объекта
+		/**
+		 * Передача объекта (данных) удаленному хосту
+		 * 
+		 * @param	object
+		 * 
+		 */
 		override public function send(object:*):void
 		{
 			var data:String = String(_serializer.encode(object));
@@ -94,7 +169,12 @@ package net.protocols
 				_queue.push(byteArray); // транспорт занят, положим в очередь
 		}
 		
-		// передача следующего по очереди объекта данных
+		/**
+		 * Передача следующего по очереди объекта данных
+		 * 
+		 * @param	byteArray Сжатые данные, которые передаются на уровень транспортного протокола
+		 * @private
+		 */
 		protected function sendNext(byteArray:ByteArray = null):void
 		{
 			if (_busy || !isOpen) return;
@@ -116,7 +196,12 @@ package net.protocols
 		
 		// ------ socket handlers
 		
-		// обработчик подключения сокета
+		/**
+		 * Обработчик подключения сокета
+		 * 
+		 * @param	event Событие, оповещающее о создании подключения
+		 * @private
+		 */
 		protected function connectHandler(event:Event = null):void
 		{
 			_reconnectTimeout = START_RECONNECT_TIMEOUT;
@@ -126,9 +211,24 @@ package net.protocols
 				sendNext();
 		}
 		
-		protected var _bytesTotal:Number = 0; // объем ожидаемого пакета
-		protected var _currentPackage:ByteArray; // текущий пакет
-		// обработчик получения сокетных данных
+		/**
+		 * Объем скачиваемого в данный момент пакета
+		 * @private
+		 */
+		protected var _bytesTotal:Number = 0;
+		
+		/**
+		 * Скачиваемы в данный момент пакет данных
+		 * @private
+		 */
+		protected var _currentPackage:ByteArray;
+		
+		/**
+		 * Обработчик получения сокетных данных
+		 * 
+		 * @param	event Событие, оповещающее о наличии новых данных в входном буфере
+		 * @private
+		 */
 		protected function dataReceiveHandler(event:ProgressEvent):void
 		{
 			if (_bytesTotal == 0) {
@@ -153,7 +253,12 @@ package net.protocols
 			}
 		}
 		
-		// обработчик закрытия сокета
+		/**
+		 * Обработчик закрытия сокета
+		 * 
+		 * @param	event Событие, оповещающее о потере соединения с удаленных хостом
+		 * @private
+		 */
 		protected function closeHandler(event:Event):void
 		{
 			if (_forceReconnection)
@@ -161,7 +266,10 @@ package net.protocols
 			dispatchEvent(new Event(Event.CLOSE));
 		}
 		
-		// процессор переподключения
+		/**
+		 * Процессор переподключения
+		 * @private
+		 */
 		protected function reconnect():void
 		{
 			if (isOpen) return
@@ -169,14 +277,24 @@ package net.protocols
 			_timer = setTimeout(connect, _reconnectTimeout);
 		}
 		
-		// обработчик ошибки ввода-вывода
+		/**
+		 * Обработчик ошибки ввода-вывода
+		 * 
+		 * @param	event Событие, оповещающее о возникновении ошибки ввода-вывода соединения
+		 * @private
+		 */
 		protected function ioErrorHandler(event:IOErrorEvent):void 
 		{
 			if (_forceReconnection) reconnect();
 			else throw(event);
 		}
 		
-		// обработчик ошибки доступа
+		/**
+		 * Обработчик ошибки доступа
+		 * 
+		 * @param	event Событие, оповещающее о возникновении ошибки попытки нарушения прав пользователя в соединении
+		 * @private
+		 */
 		protected function securityErrorHandler(event:SecurityErrorEvent):void 
 		{
 			if (_forceReconnection) reconnect();
@@ -185,7 +303,10 @@ package net.protocols
 		
 		// ------ clearing
 		
-		// -- деструктор
+		/**
+		 * Деструктор протокола
+		 * 
+		 */
 		override public function dispose():void
 		{
 			if (_timer != -1) clearTimeout(_timer);
@@ -203,7 +324,10 @@ package net.protocols
 			super.dispose();
 		}
 		
-		// очистка сокетного соединения
+		/**
+		 * Очистка сокетного соединения
+		 * @private
+		 */
 		protected function clearSocket():void
 		{
 			if (!_socket) return;
@@ -215,7 +339,10 @@ package net.protocols
 		
 		// ------ socket listeners
 		
-		// добавление обработчиков сокета
+		/**
+		 * Добавление обработчиков сокета
+		 * @private
+		 */
 		protected function addListeners():void
 		{
 			_socket.addEventListener(Event.CONNECT, connectHandler);
@@ -225,7 +352,10 @@ package net.protocols
 			_socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
 		}
 		
-		// удаление обработчиков сокета
+		/**
+		 * Удаление обработчиков сокета
+		 * @private
+		 */
 		protected function removeListeners():void
 		{
 			_socket.removeEventListener(Event.CONNECT, connectHandler);

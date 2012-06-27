@@ -7,49 +7,85 @@ package models
 	import models.User;
 
 	/**
-	 * элемент карты
+	 * Класс объекта (элемента) карты
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class Item extends VObject
 	{
-		// уникальный идентификатор объекта карты
+		/**
+		 * Уникальный идентификатор объекта карты
+		 * 
+		 */
 		public var id:String;
 		
-		// тип шаблона объекта
+		/**
+		 * Тип шаблона объекта
+		 * 
+		 */
 		public var item_type:String;
 		
-		// идентификатор владельца объекта (пользователя)
+		/**
+		 * Идентификатор владельца объекта (пользователя)
+		 * 
+		 */
 		public var owner_id:String;
 		
-		// горизонтальная позиция
+		/**
+		 * Горизонтальная позиция
+		 * 
+		 */
 		public var x:int;
 		
-		// вертикальная позиция
+		/**
+		 * Вертикальная позиция
+		 * 
+		 */
 		public var y:int;
 		
-		// текущий уровень развития объекта
+		/**
+		 * Текущий уровень развития объекта
+		 * 
+		 */
 		public var level:uint = 0;
 		
-		// размер объекта
+		/**
+		 * Размер объекта
+		 * 
+		 */
 		public function get size():Array {
 			return ItemType.getItemTypeData(item_type).size;
 		}
 		
-		// максимальный уровень объекта
+		/**
+		 * Максимальный уровень объекта
+		 * 
+		 */
 		public function get maxLevel():uint {
 			return ItemType.getItemTypeData(item_type).maxLevel;
 		}
 		
+		/**
+		 * Триггер доступности действий
+		 * 
+		 */
 		public var enabled:Boolean = true;
 		
-		// -- конструктор
+		/**
+		 * Конструктор
+		 * 
+		 * @param	source Данные полей объекта
+		 */
 		public function Item(source:Object = null)
 		{
 			super(source);
 		}
 		
-		// переход объекта на следующий уровень
+		/**
+		 * Переход объекта на следующий уровень
+		 * 
+		 * @return Результат действия, если (true), то действие завершено с успехом
+		 */
 		public function upgrade():Boolean
 		{
 			if (level >= maxLevel)
@@ -59,7 +95,13 @@ package models
 			return true;
 		}
 		
-		// установка позиции объекта
+		/**
+		 * Установка позиции объекта
+		 * 
+		 * @param	xpos Позиция X ячейки на карте пользователя
+		 * @param	ypos Позиция Y ячейки на карте пользователя
+		 * @see Isometric
+		 */
 		public function setPosition(xpos:int, ypos:int):void
 		{
 			x = xpos;
@@ -67,17 +109,24 @@ package models
 			if (id) dispatchEvent(new Event(Event.CHANGE));
 		}
 		
-		// установка владельца объекта
+		/**
+		 * Установка владельца объекта
+		 * 
+		 * @param	ownerID Идентификатор пользователя-владельца объекта
+		 */
 		public function setOwner(ownerID:String):void
 		{
 			owner_id = ownerID;
 			if (id) dispatchEvent(new Event(Event.CHANGE));
 		}
 		
-		// ликвидация объекта карты
+		/**
+		 * Ликвидация объекта карты
+		 * 
+		 */
 		public function dispose():void
 		{
-			
+			throw("Disposer realization not completed yet");
 		}
 	}
 }

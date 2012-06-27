@@ -9,8 +9,9 @@ package models
 	
 	import models.Item;
 
-	// события, генерируемые объектами класса
 	/**
+	 * Основной класс модели данных
+	 * 
 	 * ...
 	 * @author Alex Sarapulov
 	 */
@@ -19,32 +20,56 @@ package models
 	[Event(name="userRemoved", type="models.Model")]
 	public class Model extends EventDispatcher
 	{
+		/** Константа наименования события о добавлении пользователя */
 		public static const USER_ADDED:String = "userAdded";
+		/**	Константа наименования события о удалении пользователя */
 		public static const USER_REMOVED:String = "userRemoved";
 		
-		// -- экземпляр-одиночка модели
+		/**
+		 * Экземпляр-одиночка модели
+		 * 
+		 */
 		public static const instance:Model = new Model();
 		
-		// ссылка на контроллер обмена данными
+		/**
+		 * Ссылка на контроллер обмена данными
+		 * @private
+		 */
 		private var _controller:IConnectionController;
 		
-		// список пользователей подгруженных из базы данных
+		/**
+		 * Список пользователей подгруженных из базы данных
+		 * @private
+		 */
 		private var _users:Object;
 		
-		// данные о типах объектов
-		private var _itemsConfigLoaded:Boolean; // триггер готовности данных о типах объектов
+		/**
+		 * Триггер готовности данных о типах объектов
+		 * @private
+		 */
+		private var _itemsConfigLoaded:Boolean;
 		
-		// триггер готовности модели
 		private var _inited:Boolean;
+		/**
+		 * Триггер готовности модели
+		 * 
+		 */
 		public function get inited():Boolean { return _inited; }
 		
-		// -- конструктор
+		/**
+		 * Конструктор модели
+		 * 
+		 */
 		public function Model()
 		{
 			if (Model) throw("Model is singleton, construction unavailable");
 		}
 		
-		// получение связи с контроллером данных
+		/**
+		 * Получение связи с контроллером приложения
+		 * 
+		 * @param	controller Ссылка на контроллер приложения
+		 */
 		public function init(controller:IConnectionController):void
 		{
 			_users = { };
@@ -54,7 +79,12 @@ package models
 			else _controller.addEventListener(Event.INIT, initControllerHandler);
 		}
 		
-		// обработчик события готовности контроллера данных (запуск модели)
+		/**
+		 * Обработчик события готовности контроллера приложения (запуск модели)
+		 * 
+		 * @param	event Событие, уведомляющее о готовности контроллера
+		 * @private
+		 */
 		private function initControllerHandler(event:Event = null):void
 		{
 			if (event) {
@@ -64,7 +94,10 @@ package models
 			checkCompleteInitialization();
 		}
 		
-		// обработчик получения данных о типах объектов
+		/**
+		 * Обработчик получения данных о типах объектов
+		 * @private
+		 */
 		private function initItemTypesHandler(data:XML):void
 		{
 			ItemType.initItemTypes(data);
@@ -72,7 +105,11 @@ package models
 			checkCompleteInitialization();
 		}
 		
-		// проверка условий завершения инициализации модели
+		/**
+		 * Проверка условий завершения инициализации модели
+		 * 
+		 * @return Флаг готовности модели
+		 */
 		private function checkCompleteInitialization():Boolean
 		{
 			if (_inited) return true;
@@ -83,20 +120,35 @@ package models
 			return true;
 		}
 		
-		// получение данных пользователя
+		/**
+		 * Получение данных пользователя по его идентификатору
+		 * 
+		 * @param	userID Идентификатор пользователя
+		 * @return Объект пользователя
+		 */
 		public function getUser(userID:String):User
 		{
 			return _users[userID] as User;
 		}
 		
-		// создание нового пользователя
+		/**
+		 * Добавление нового пользователя
+		 * 
+		 * @param	user Добавляемый объект пользователя
+		 */
 		public function addUser(user:User):void
 		{
 			_users[user.id] = user;
 			dispatchEvent(new ObjectEvent(USER_ADDED, user));
 		}
 		
-		// обновление данных пользователя
+		/**
+		 * Обновление данных пользователя
+		 * 
+		 * @param	userID Идентификатор пользователя
+		 * @param	changes Изменения данных пользователя
+		 * @return Результат выполнения обновления данных, true - выполнено успешно
+		 */
 		public function updateUser(userID:String, changes:Object):Boolean
 		{
 			var user:User = getUser(userID);
@@ -105,7 +157,12 @@ package models
 			return true;
 		}
 		
-		// удаление пользователя
+		/**
+		 * Удаление пользователя
+		 * 
+		 * @param	userID Идентификатор пользователя
+		 * @return Результат выполнения идаления пользователя, true - пользователь удален
+		 */
 		public function dropUser(userID:String):Boolean
 		{
 			var user:User = _users[userID];
@@ -117,7 +174,11 @@ package models
 			return true;
 		}
 		
-		// получение данных о типах объектов
+		/**
+		 * Получение данных о типах объектов
+		 * 
+		 * @return Данные о типах объектов карты
+		 */
 		public function getItemTypes():Object
 		{
 			if (!_inited)

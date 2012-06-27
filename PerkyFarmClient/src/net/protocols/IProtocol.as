@@ -2,21 +2,38 @@ package net.protocols
 {
 	import flash.events.IEventDispatcher;
 	/**
+	 * Интерфейс протокола
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public interface IProtocol extends IEventDispatcher
 	{
-		// триггер доступности объекта
+		/**
+		 * Триггер доступности объекта
+		 * 
+		 */
 		function get isOpen():Boolean;
 		
-		// подключение к объекту
+		/**
+		 * Подключение к объекту
+		 * 
+		 * @param	host Хост
+		 * @param	port Порт
+		 * 
+		 */
 		function connect(host:String = null, port:* = null):void;
 		
-		// передача данных объекту
+		/**
+		 * Передача данных объекту
+		 * 
+		 * @param	data Передаваемые данные
+		 */
 		function send(data:*):void;
 		
-		// финализатор объекта протокола (закрытие протокола)
+		/**
+		 * Финализатор объекта протокола (закрытие протокола)
+		 * 
+		 */ 
 		function dispose():void;
 	}
 	

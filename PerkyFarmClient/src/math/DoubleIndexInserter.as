@@ -6,6 +6,7 @@ package math
 	 * Для выбора позиции вставки нового объекта сначала выбирает диапазон сверки (кусок из
 	 * общего списка объектов), а потом в этом небольшом диапазоне ищет место вставки объекта
 	 * и затем вставляет объект в уже известное место в общем списке.
+	 * Класс работает корректно только с целочисленными полями (int).
 	 * Целесообразно использовать класс там, где требуется быстрая вставка, удаление и
 	 * сортировка объектов по одному полю в очень большом списке объектов. При этом нужно вычислить
 	 * оптимальное количество диапазонов и алгоритм их распределения, исходя из усредненного значения
@@ -54,32 +55,37 @@ package math
 		 */
 		protected var _min:Number;
 		
+		protected var _indexes:Array;
 		/**
 		 * Сортированный список объектов по возрастанию значения сравниваемого поля
 		 * этих объектов. Сортировки как таковой не происходит, элемент просто вставляется в нужную позицию
 		 * 
 		 */
-		protected var _indexes:Array;
+		public function get indexes():Array { return _indexes; }
 		
+		protected var _paths:Dictionary;
 		/**
 		 * Сортированные диапазоны объектов, также являются списками объектов, но
 		 * только небольшого размера, что уменьшает время поиска объекта внутри
 		 * 
 		 */
-		protected var _paths:Dictionary;
+		public function get paths():Dictionary { return _paths; }
+		
+		protected var _nextPathIDs:Dictionary;
 		/**
 		 * Список идентификаторов следующего за текущим диапазоном, необходим для инкрементного поиска
 		 * целевого диапазона или других подобных задач, где необходимо переходить от первого диапазона ко второму
 		 * и т.д. или в обратную сторону
 		 * 
 		 */
-		protected var _nextPathIDs:Dictionary;
+		public function get nextPathIDs():Dictionary { return _nextPathIDs; }
 		
+		protected var _numPaths:int;
 		/**
 		 * Количество ключевых точек (разделений) между диапазонами
 		 * 
 		 */
-		protected var _numPaths:int;
+		public function get numPaths():int { return _numPaths; }
 		
 		
 		/**
@@ -96,7 +102,7 @@ package math
 		 * @param	...args Прочие аргументы, которые будут переданы уже алгоритму распределения диапазонов
 		 * 
 		 */
-		public function DoubleIndexInserter(minValue:Number, maxValue:Number, fieldName:String, numPaths:int = 10, admeasurement:String = "linear", ...args) 
+		public function DoubleIndexInserter(minValue:int, maxValue:int, fieldName:String, numPaths:int = 10, admeasurement:String = "linear", ...args) 
 		{
 			_admeasurement = admeasurement; // пока доступен функционал только для линейного (равномерного) распределения елементов 
 			_min = minValue;
@@ -133,16 +139,19 @@ package math
 		 */
 		protected function prepareLinearPaths(...args):void
 		{
-			var pathLen:Number = Number(_max - _min) / Number(_numPaths - 1);
-			var prevPathID:String = "start";
+			var delta:int = _max - _min;
+			var pathLen:int = Number(delta) / Number(_numPaths);
+			var prevPathID:* = "start";
 			var a:Array = [];
 			_paths[prevPathID] = a;
-			var i:Number = _min;
+			var i:int = _min;
 			while (i < _max) {
-				prevPathID = addPath(String(i), prevPathID);
-				i += pathLen;
+				prevPathID = addPath(i, prevPathID);
+				if (i >= _max - pathLen - 1)
+					break;
+				i += pathLen;	
 			}
-			prevPathID = addPath(String(_max), prevPathID);
+			
 			addPath("end", prevPathID);
 		}
 		
@@ -154,7 +163,7 @@ package math
 		 * @return Идентификатор добавленного диапазона
 		 * @private
 		 */
-		protected function addPath(curPathID:String, prevPathID:String):String
+		protected function addPath(curPathID:*, prevPathID:*):*
 		{
 			var path:Array = [];
 			_paths[curPathID] = path;
@@ -174,26 +183,46 @@ package math
 		{
 			var pathID:* = getPathID(target);
 			var path:Array = _paths[pathID];
-			var value:Number = Number(target[_field]);
+			var value:int = int(target[_field]);
 			var compareTarget:*;
-			var compareValue:Number;
+			var compareValue:int;
 			var index:int = 0;
-			for (var i:int = 0; i < path.length; i++) {
-				compareTarget = path[i];
-				compareValue = Number(compareTarget[_field]);
-				if (value > compareValue)
-					continue;
-				if (i == 0)
-					path.unshift(target);
-				else if (i == path.length - 1)
-					path.push(target);
-				else
-					path.splice(i, 0, target);
-				index = _indexes.indexOf(compareTarget);
-				break;
-			}
-			if (!compareTarget) {
-				index = _indexes.length;
+			var iPathID:* = pathID;
+			var iPath:Array = path;
+			
+			// looping
+			loop: do { // пока не достигли конечного диапазона
+				for (var i:int = 0; i < iPath.length; i++) { // проход по диапазону
+					// берем сравниваемый объект из диапазона (один за другим)
+					compareTarget = iPath[i];
+					if (!compareTarget) throw("!");
+					compareValue = int(compareTarget[_field]);
+					if (value > compareValue) // если текущее значение все же больше
+						continue; // то переходим к следующему объекту в диапазоне
+					// а если текущее значение равно или меньше сравниваемого
+					if (iPathID == pathID) { // если это текущий диапазон
+						if (i == 0)
+							path.unshift(target);
+						else
+							path.splice(i, 0, target);
+					} else {
+						path.push(target);
+					}
+					index = _indexes.indexOf(compareTarget);
+					break loop; // выходим из do-while с вычисленным индексом
+				}
+				if (iPathID == pathID && !compareTarget) { // если в первом прогоне не найдено ни одного объекта
+					if (index != _indexes.length) // выставляем крайний индекс (возможно временно)
+						index = _indexes.length;
+					path.push(target); // добавляем объект в диапазон
+				}
+				// переходим к следующему диапазону
+				iPathID = _nextPathIDs[iPathID];
+				iPath = _paths[iPathID];
+			} while (iPathID != "end");
+			// end loop
+			
+			if (index == _indexes.length) {
 				_indexes.push(target);
 			} else if (index == 0) {
 				_indexes.unshift(target);

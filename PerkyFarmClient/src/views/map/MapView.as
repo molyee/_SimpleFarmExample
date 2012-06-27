@@ -74,18 +74,7 @@ package views.map
 			
 			MapObjectView.MAP_VIEW = this;
 			
-			_indexInserter = new DoubleIndexInserter(0, 100, "v", 15, DoubleIndexInserter.LINEAR);
-			_indexInserter.insert({v:-5});
-			_indexInserter.insert({v:0});
-			_indexInserter.insert({v:49});
-			_indexInserter.insert({v:40});
-			_indexInserter.insert({v:51});
-			_indexInserter.insert({v:98});
-			_indexInserter.insert({v:99});
-			_indexInserter.insert({v:97});
-			_indexInserter.insert({v:100});
-			_indexInserter.insert({v:101});
-			
+			_indexInserter = new DoubleIndexInserter(Isometric.PADDING_Y, Isometric.MAP_HEIGHT + 2*Isometric.PADDING_Y, "y", 15, DoubleIndexInserter.LINEAR);
 			
 			_controller = controller;
 			_items = { };
@@ -203,7 +192,7 @@ package views.map
 			mapObjectView.addEventListener(MapObjectView.UPGRADE, upgradeMapObjectHandler);
 			mapObjectView.addEventListener(MapObjectView.COLLECT, collectMapObjectHandler);
 			mapObjectView.addEventListener(MapObjectView.MOVING_CHANGE, movingChangeMapObjectHandler);
-			var index:int = 0; // TODO: вместо сортировки используется индекс вставки
+			var index:int = _indexInserter.insert(mapObjectView);
 			itemsLayer.addChildAt(mapObjectView, index);
 			_items[mapObjectView.itemID] = mapObjectView;
 		}
@@ -218,6 +207,7 @@ package views.map
 			mapObjectView.removeEventListener(MapObjectView.MOVING_CHANGE, movingChangeMapObjectHandler);
 			if (mapObjectView.parent)
 				mapObjectView.parent.removeChild(mapObjectView);
+			var index:int = _indexInserter.remove(mapObjectView);
 			delete _items[itemID];
 		}
 		

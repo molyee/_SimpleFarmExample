@@ -6,40 +6,73 @@ package net.protocols
 	
 	
 	/**
+	 * Класс протокола передачи данных.
+	 * Использовать в качестве базового класса для протокола
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class AbstactProtocol extends EventDispatcher implements IProtocol
 	{
-		protected var _receiveHandler:Function; // обработчик получения сериализованных данных
-		protected var _serializer:ISerializer; // сериализатор данных
+		/**
+		 * Обработчик получения сериализованных данных
+		 * @private
+		 */
+		protected var _receiveHandler:Function;
 		
-		// триггер доступности удаленного объекта
+		/**
+		 * Сериализатор данных
+		 * @private
+		 */
+		protected var _serializer:ISerializer;
+		
+		/**
+		 * Триггер доступности удаленного объекта
+		 * @private
+		 */
 		public function get isOpen():Boolean {
 			throw('AbstractProtocol class property "get isOpen" must be overriden');
 			return false;
 		}
 		
-		// -- конструктор
+		/**
+		 * Конструктор класса
+		 * 
+		 * @param	serializer Сериализатор передаваемых данных
+		 * @param	receiveHandler Обработчик получения сериализованных данных
+		 * 
+		 */
 		public function AbstactProtocol(serializer:ISerializer, receiveHandler:Function) 
 		{
 			_serializer = serializer;
 			_receiveHandler = receiveHandler;
 		}
 		
-		// создание подключения
+		/**
+		 * Создание подключения
+		 * 
+		 * @param	host Хост соединения
+		 * @param	port Порт соединения
+		 * @private
+		 */
 		public function connect(host:String = null, port:* = null):void
 		{
 			throw('AbstractProtocol class method "connect(host:String, port:uint)" must be overriden');
 		}
 		
-		// отправка данных
+		/**
+		 * Отправка данных
+		 * 
+		 * @param	data Передаваемые данные
+		 */
 		public function send(data:*):void
 		{
 			throw('AbstractProtocol class method "send(data:*)" must be overriden');
 		}
 		
-		// -- финализатор
+		/**
+		 * Деструктор объекта протокола
+		 * 
+		 */
 		public function dispose():void
 		{
 			_receiveHandler = null;

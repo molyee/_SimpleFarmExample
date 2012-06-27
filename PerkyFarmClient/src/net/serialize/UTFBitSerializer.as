@@ -3,17 +3,28 @@ package net.serialize
 	import flash.utils.ByteArray;
 
 	/**
+	 * Класс кодирующий данные из строкового формата в битовый формат
+	 * и декодирующий обратно
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class UTFBitSerializer implements ISerializer 
 	{
-		
+		/**
+		 * Конструктор класса сериализатора
+		 * 
+		 */
 		public function UTFBitSerializer() 
 		{
 			
 		}
 		
+		/**
+		 * Десериализация данных
+		 * 
+		 * @param	data Десериализуемые данные
+		 * @return Десериализованные данные
+		 */
 		public function encode(data:*):* 
 		{
 			var str:String = String(data);
@@ -25,6 +36,12 @@ package net.serialize
 			return result;
 		}
 		
+		/**
+		 * Сериализация данных
+		 * 
+		 * @param	object Сериализуемые данные
+		 * @return Сериализованные данные
+		 */
 		public function decode(object:*):* 
 		{
 			var ba:ByteArray = object as ByteArray;

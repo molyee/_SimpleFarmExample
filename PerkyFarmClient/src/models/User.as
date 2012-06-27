@@ -5,49 +5,83 @@ package models
 	import models.VObject;
 	
 	/**
-	 * объект пользователя (игрока)
+	 * Класс объекта пользователя (игрока)
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class User extends VObject
 	{
-		// текущее значение уникального идентификатора объекта
+		/**
+		 * Текущее значение уникального идентификатора объекта
+		 * 
+		 */
 		public var item_uuid:uint;
 		
-		// уникальный идентификатор пользователя
+		/**
+		 * Уникальный идентификатор пользователя
+		 * 
+		 */
 		public var id:String;
 		
-		// список объектов карты пользователя
+		/**
+		 * Список объектов карты пользователя
+		 * 
+		 */
 		public var items:Object = {};
 		
-		// инвентарь пользователя (список объектов собранных с карты)
+		/**
+		 * Инвентарь пользователя (список объектов собранных с карты)
+		 * 
+		 */
 		public var inventory:Object = {};
 		
-		// триггер онлайна
+		/**
+		 * Триггер авторизованности пользователя
+		 * 
+		 */
 		public var logged:Boolean;
 		
-		// количество объектов на карте пользователя
 		protected var _numItems:uint;
+		/**
+		 * Количество объектов на карте пользователя
+		 * 
+		 */
 		public function get numItems():uint { return _numItems; }
 		
-		// количество элементов в инвентаре пользователя
 		protected var _numInventoryItems:uint;
+		/**
+		 * Количество элементов в инвентаре пользователя
+		 * 
+		 */
 		public function get numInventoryItems():uint { return _numInventoryItems; }
 		
-		// граф, содержащий расположение объектов на карте пользователя
 		protected var _map:Object;
+		/**
+		 * Граф, содержащий расположение объектов на карте пользователя
+		 * 
+		 */
 		public function get map():Object {
 			return _map != null ? _map : prepareMap();
 		}
 		
-		
-		// -- конструктор
+		/**
+		 * Конструктор объекта пользователя
+		 * 
+		 * @param	source Данные полей объекта пользователя
+		 * 
+		 */
 		public function User(source:* = null)
 		{
 			super(source);
 		}
 		
-		// обновление некоторых свойств извне (осторожно)
+		/**
+		 * Обновление некоторых свойств извне
+		 * 
+		 * @param	changes Измененные свойства
+		 * @return Резульат действия, true - успешное выполнение
+		 * 
+		 */
 		public function update(changes:Object):Boolean
 		{
 			// TODO(Alex Sarapulov): добавить валидацию данных (не все можно изменять извне)
@@ -69,7 +103,15 @@ package models
 			return true;
 		}
 		
-		// добавление готового объекта на карту пользователя
+		/**
+		 * Добавление готового объекта на карту пользователя
+		 * 
+		 * @param	itemType Наименование типа объекта
+		 * @param	xpos Позиция X на карте ячеек
+		 * @param	ypos Позиция Y на карте ячеек
+		 * @return Идентификатор добавленного объекта, если null - объект не был добавлен
+		 * 
+		 */
 		public function addItem(itemType:String, xpos:int, ypos:int):String
 		{
 			var itemID:String = item_uuid.toString();
@@ -83,7 +125,15 @@ package models
 			return itemID;
 		}
 		
-		// перемещение объекта по карте
+		/**
+		 * Перемещение объекта по карте
+		 * 
+		 * @param	itemType Наименование типа объекта
+		 * @param	xpos Позиция X на карте ячеек
+		 * @param	ypos Позиция Y на карте ячеек
+		 * @return Результат перемещения объекта, true - объект был успешно перемещен в указанную позицию
+		 * 
+		  */
 		public function moveItem(itemID:String, xpos:int, ypos:int):Boolean
 		{
 			var item:Item = getItem(itemID);
@@ -96,8 +146,16 @@ package models
 			return true;
 		}
 		
-		// установка позиции объекта, заполнение ячеек
-		public function setItemPosition(item:Item, xpos:int, ypos:int):Boolean
+		/**
+		 * Установка позиции объекта, заполнение ячеек
+		 * 
+		 * @param	item Объект карты
+		 * @param	xpos Позиция X на карте ячеек
+		 * @param	ypos Позиция Y на карте ячеек
+		 * @return Результат установки объекта в заданную позицию
+		 * 
+		 */
+		protected function setItemPosition(item:Item, xpos:int, ypos:int):Boolean
 		{
 			var itemSize:Array = item.size;
 			if (!checkEmptyPositions(xpos, ypos, itemSize))
@@ -116,7 +174,12 @@ package models
 			return true;
 		}
 		
-		// очистка объекта 
+		/**
+		 * Удаление объекты с карты ячеек пользователя
+		 * 
+		 * @param	item Удаляемый объект
+		 * 
+		 */
 		public function clearItemPosition(item:Item):void
 		{
 			var itemSize:Array = item.size;
@@ -132,7 +195,13 @@ package models
 			}
 		}
 		
-		// удаление объекта из списка
+		/**
+		 * Удаление объекта из списка объектов карты пользователя
+		 * 
+		 * @param	itemID Идентификатор объекта
+		 * @return Результат удаления объекта, true - объект удален
+		 * 
+		 */
 		public function dropItem(itemID:String):Boolean
 		{
 			var item:Item = getItem(itemID);
@@ -144,7 +213,13 @@ package models
 			return true;
 		}
 		
-		// изъятие объекта с карты с получением награды
+		/**
+		 * Изъятие объекта с карты с получением награды
+		 * 
+		 * @param	itemID Идентификатор объекта
+		 * @return Результат выполнения сбора, true - объект собран
+		 * 
+		 */
 		public function collectItem(itemID:String):Boolean
 		{
 			var item:Item = getItem(itemID);
@@ -158,7 +233,13 @@ package models
 			return true;
 		}
 		
-		// повышение уровня объекта карты пользователя
+		/**
+		 * Повышение уровня объекта карты пользователя
+		 * 
+		 * @param	itemID Идентификатор объекта пользователя
+		 * @return Результат выполнения апгрейда, true - уровень повышен
+		 * 
+		 */
 		public function upgradeItem(itemID:String):Boolean
 		{
 			var item:Item = getItem(itemID);
@@ -167,7 +248,12 @@ package models
 			return item.upgrade();
 		}
 		
-		// повышение уровня объектов карты пользователя
+		/**
+		 * Повышение уровня объектов карты пользователя
+		 * 
+		 * @param	listIDs Список идентификаторов объектов, которые требуется обновить
+		 * @return Список идентификаторов объектов, которые были обновлены
+		 */
 		public function upgradeItems(listIDs:Array):Array
 		{
 			var upgradedList:Array = [];
@@ -179,13 +265,24 @@ package models
 			return upgradedList;
 		}
 		
-		// получение объекта карты пользователя
+		/**
+		 * Получение объекта карты пользователя
+		 * 
+		 * @param	itemID Идентификатор объекта на карте пользователя
+		 * @return Объект на карте пользователя
+		 * 
+		 */
 		public function getItem(itemID:String):Item
 		{
 			return items[itemID];
 		}
 		
-		// получение идентификаторов объектов, расположенных на карте пользователя
+		/**
+		 * Получение идентификаторов объектов, расположенных на карте пользователя
+		 * 
+		 * @return Массив идентификаторов объектов карты пользователя
+		 * 
+		 */
 		public function getAllItemIDs():Array
 		{
 			var itemIDs:Array = [];
@@ -195,8 +292,17 @@ package models
 			return itemIDs;
 		}
 		
-		// проверка свободного места для установки целевого объекта
-		public function checkEmptyPositions(x:int, y:int, size:Array):Boolean
+		/**
+		 * Проверка свободного места для установки целевого объекта
+		 * 
+		 * @param	x Позиция X точки привязки объекта
+		 * @param	y Позиция Y точки привязки объекта
+		 * @param	size Размер объекта в ячейках по ширине (индекс 0) и высоте (индекс 1)
+		 * @return Результат выполнения проверки, true - говорит о том, что место свободно
+		 * для постройки или перемещения
+		 * 
+		 */
+		public function checkEmptyPositions(xpos:int, ypos:int, size:Array):Boolean
 		{
 			var mapLink:Object = map;
 			var i0:int = x - int(size[0] / 2) - 1;
@@ -213,7 +319,11 @@ package models
 			return true;
 		}
 		
-		// подготовка графа объектов на карте
+		/**
+		 * Подготовка графа объектов на карте
+		 * 
+		 * @return Подготовленный граф заполнения позиций карты
+		 */
 		protected function prepareMap():Object
 		{
 			// TODO(Alex Sarapulov): проверить, возможно лучше вычислять карту каждый раз,
@@ -226,7 +336,10 @@ package models
 			return _map;
 		}
 		
-		// ликвидация объекта пользователя
+		/**
+		 * Ликвидация объекта пользователя
+		 * 
+		 */
 		public function dispose():void
 		{
 			id = null;
