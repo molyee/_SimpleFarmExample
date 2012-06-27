@@ -7,35 +7,61 @@ package views.map
 	import flash.display.Shape;
 	
 	/**
+	 * Класс организующий загрузку и создание фоновой картинки
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class BackgroundLayer
 	{
-		//[Embed(source="../../../media/grass_texture.jpg")]
-		//public static const DEFAULT_TEXTURE_CLASS:Class; // текстура фона по умолчанию
-		
-		// контейнер для текстуры
+		/**
+		 * Контейнер для текстуры
+		 * @private
+		 */
 		protected var _holder:DisplayObjectContainer;
 		
-		// растровые данные текстуры
+		/**
+		 * Растровые данные текстуры
+		 * 
+		 * @private
+		 */
 		protected var _texture:BitmapData;
 		
-		// объект отрисовки фона
+		/**
+		 * Объект отрисовки фона
+		 * @private
+		 */
 		protected var _background:Bitmap;
 		
-		// ширина заливки
 		protected var _width:Number;
+		/**
+		 * Ширина заливки
+		 * 
+		 */
 		public function get width():Number { return _width; }
 		
-		// высота заливки
 		protected var _height:Number;
+		/**
+		 * Высота заливки
+		 * 
+		 */
 		public function get height():Number { return _height; }
 		
-		// триггер показа фона
+		/**
+		 * Триггер показа фона
+		 * @private
+		 */
 		protected var _showing:Boolean;
 		
-		// -- конструктор
+		
+		/**
+		 * Конструктор класса уровня фона
+		 * 
+		 * @param	holder Контейнер для фоновой картинки
+		 * @param	texture Растровые данные фоновой текстуры
+		 * @param	width Ширина фона
+		 * @param	height Высота фона
+		 * 
+		 */
 		public function BackgroundLayer(holder:DisplayObjectContainer, texture:BitmapData = null, width:Number = 0, height:Number = 0) 
 		{
 			_holder = holder;
@@ -45,7 +71,12 @@ package views.map
 			setSize(width, height);
 		}
 		
-		// обновление текстуры
+		/**
+		 * Применение текстуры
+		 * 
+		 * @param	texture Растровые данные о текстуре
+		 * 
+		 */
 		public function setTexture(texture:BitmapData):void
 		{
 			_texture = texture;
@@ -53,7 +84,13 @@ package views.map
 				update();
 		}
 		
-		// обновление размера фоновой заливки
+		/**
+		 * Обновление размера фоновой заливки
+		 * 
+		 * @param	width Значение ширины фона
+		 * @param	height Значение высоты фона
+		 * 
+		 */
 		public function setSize(width:Number, height:Number):void
 		{
 			if (_width == width && _height == height)
@@ -64,7 +101,10 @@ package views.map
 				update();
 		}
 		
-		// показ фона
+		/**
+		 * Показ фоновой картинки
+		 * 
+		 */
 		public function show():void
 		{
 			if (_showing) return;
@@ -75,7 +115,10 @@ package views.map
 			update();
 		}
 		
-		// скрытие фона (удаление из списка отображения)
+		/**
+		 * Скрытие фона (удаление из списка отображения)
+		 * 
+		 */
 		public function hide():void
 		{
 			if (!_showing) return;
@@ -84,7 +127,10 @@ package views.map
 				_background.parent.removeChild(_background);
 		}
 		
-		// обновление текстуры фона
+		/**
+		 * Обновление фоновой картинки
+		 * @private
+		 */
 		protected function update():void
 		{
 			var shape:Shape = new Shape();

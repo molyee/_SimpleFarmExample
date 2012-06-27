@@ -1,5 +1,6 @@
 package views.panels
 {
+	import controllers.ClientConnectionController;
 	import controllers.IConnectionController;
 	import events.ObjectEvent;
 	import flash.display.Sprite;
@@ -12,14 +13,14 @@ package views.panels
 	
 	public class GameControlPanel extends Sprite
 	{
-		private var _controller:IConnectionController;
+		private var _controller:ClientConnectionController;
 		private var _mapView:MapView;
 		private var _itemSelector:ItemSelectPanel;
 		private var _cancelButton:GLabeledButton;
 		private var _moveButton:GLabeledButton;
 		private var _upgradeButton:GLabeledButton;
 		
-		public function GameControlPanel(controller:IConnectionController, mapView:MapView)
+		public function GameControlPanel(controller:ClientConnectionController, mapView:MapView)
 		{
 			_mapView = mapView;
 			_mapView.addEventListener(Event.CHANGE, mapStateChangeHandler);
@@ -85,7 +86,7 @@ package views.panels
 		// обработчик нажатия кнопки инкремента уровня всех объектов
 		protected function upgradeControl(event:Event):void
 		{
-			_controller.upgradeItems(null, null, function(data:*):void {
+			_controller.tryUpgradeItems(null, function(data:*):void {
 				trace(data);
 			});
 		}

@@ -47,6 +47,8 @@ package display.utils
 		public static function drawBitmapData(object:DisplayObject, bounds:Rectangle = null):BitmapData
 		{
 			bounds = bounds || object.getBounds(object);
+			if (bounds.width == 0 || bounds.height == 0)
+				return null;
 			var bitmapData:BitmapData = new BitmapData(bounds.width, bounds.height, true, 0x00000000);
 			bitmapData.draw(object, new Matrix(1, 0, 0, 1, -bounds.x, -bounds.y));
 			return bitmapData;

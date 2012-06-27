@@ -1,6 +1,6 @@
 package views.map
 {
-	import controllers.IConnectionController;
+	import controllers.ClientConnectionController;
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
@@ -16,9 +16,12 @@ package views.map
 	
 	public class MapView extends Sprite
 	{
-		public static const NORMAL_STATE:String = "normal"; // состояние норма
-		public static const PLACING_STATE:String = "placing"; // состояние постройка
-		public static const MOVING_STATE:String = "moving"; // состояние перемещения
+		/** Константа нормального состояния вида карты */
+		public static const NORMAL_STATE:String = "normal";
+		/** Константа состояния активации постройки */
+		public static const PLACING_STATE:String = "placing";
+		/** Константа состояния перемещения постройки */
+		public static const MOVING_STATE:String = "moving";
 		
 		// текущее состояние
 		protected var _currentState:String = "normal";
@@ -54,7 +57,7 @@ package views.map
 		protected var _items:Object = { };
 		
 		// ссылка на контроллер
-		protected var _controller:IConnectionController;
+		protected var _controller:ClientConnectionController;
 		
 		// ссылка на текущего пользователя
 		protected var _currentUser:User;
@@ -62,13 +65,19 @@ package views.map
 		public function set currentUser(value:User):void {
 			_currentUser = value;
 			tilesLayer.objectsMap = _currentUser.map;
+			var items:Object = _currentUser.items;
+			for (var itemID:String in items) {
+				var item:Item = items[itemID] as Item;
+				var mapObjectView:MapObjectView = new MapObjectView(item);
+				addItemHander(mapObjectView);
+			}
 		}
 		
 		protected var _indexInserter:DoubleIndexInserter;
 		
 		
 		// -- конструктор
-		public function MapView(controller:IConnectionController, size:int)
+		public function MapView(controller:ClientConnectionController, size:int)
 		{
 			super();
 			
@@ -111,7 +120,7 @@ package views.map
 				else
 					_moving = false;
 			}
-			trace("set map state", state);
+			//trace("set map state", state);
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
@@ -138,13 +147,13 @@ package views.map
 			_currentMapObject = null;
 		}
 		
-		protected function putCurrentObject():void
+		// постройка объекта на карте
+		protected function putCurrentObject():Boolean
 		{
 			var mapObjectView:MapObjectView = _currentMapObject as MapObjectView;
-			var result:Boolean = _controller.moveItem(null, mapObjectView.itemID, mapObjectView.xpos, mapObjectView.ypos, moveHandler);
-			return;
+			var result:Boolean = _controller.tryMoveItem(mapObjectView.itemID, mapObjectView.xpos, mapObjectView.ypos, moveHandler);
+			return result;
 		}
-		
 		
 		// обработчик события клика по сцене
 		protected function clickHandler(event:MouseEvent):void
@@ -154,7 +163,7 @@ package views.map
 				return;
 			if (_currentState == PLACING_STATE) {
 				var itemType:String = _currentMapObject.itemType.name;
-				var itemID:String = _controller.placeItem(null, itemType, _currentMapObject.xpos, _currentMapObject.ypos, placeHandler);
+				var itemID:String = _controller.tryPlaceItem(itemType, _currentMapObject.xpos, _currentMapObject.ypos, placeHandler);
 				var result:Boolean = _controller.getItem(null, itemID, place);
 				return;
 			} else if (_currentState == MOVING_STATE) {
@@ -162,7 +171,7 @@ package views.map
 					itemID = _currentMapObject.itemID;
 					var xpos:int = _currentMapObject.xpos;
 					var ypos:int = _currentMapObject.ypos;
-					result = _controller.moveItem(null, itemID, xpos, ypos, placeHandler);
+					result = _controller.tryMoveItem(itemID, xpos, ypos, placeHandler);
 					if (result) stopMovingObject(result);
 					else _currentMapObject.setPosition(xpos, ypos);
 					return;
@@ -192,8 +201,10 @@ package views.map
 			mapObjectView.addEventListener(MapObjectView.UPGRADE, upgradeMapObjectHandler);
 			mapObjectView.addEventListener(MapObjectView.COLLECT, collectMapObjectHandler);
 			mapObjectView.addEventListener(MapObjectView.MOVING_CHANGE, movingChangeMapObjectHandler);
-			var index:int = _indexInserter.insert(mapObjectView);
-			itemsLayer.addChildAt(mapObjectView, index);
+			
+			// TODO(Alex Sarapulov): Вместо обычной сортировки или вставки, нужно использовать класс быстрой вставки DoubleIndexInserter
+			
+			insertInSortedList(mapObjectView);
 			_items[mapObjectView.itemID] = mapObjectView;
 		}
 		
@@ -207,27 +218,43 @@ package views.map
 			mapObjectView.removeEventListener(MapObjectView.MOVING_CHANGE, movingChangeMapObjectHandler);
 			if (mapObjectView.parent)
 				mapObjectView.parent.removeChild(mapObjectView);
-			var index:int = _indexInserter.remove(mapObjectView);
+			//var index:int = _indexInserter.remove(mapObjectView);
 			delete _items[itemID];
 		}
 		
+		// сортировка объектов карты по Y-оси
+		protected function insertInSortedList(mapObjectView:MapObjectView):void
+		{
+			var len:int = itemsLayer.numChildren;
+			var i:int = 0;
+			for (i; i < len; i++) {
+				var object:MapObjectView = itemsLayer.getChildAt(i) as MapObjectView;
+				if (object.y >= mapObjectView.y)
+					break;
+			}
+			itemsLayer.addChildAt(mapObjectView, i);
+		}
+		
+		// обработчик события обновления уровня объекта
 		public function upgradeMapObjectHandler(event:Event = null):void
 		{
 			var itemIDs:Array;
 			if (event && (event.currentTarget is MapObjectView)) {
 				itemIDs = [(event.currentTarget as MapObjectView).itemID];
 			}
-			var result:Array = _controller.upgradeItems(null, itemIDs, upgradeHandler);
+			var result:Array = _controller.tryUpgradeItems(itemIDs, upgradeHandler);
 			return;
 		}
 		
+		// обработчик события сбора объекта
 		protected function collectMapObjectHandler(event:Event):void
 		{
 			var mapObjectView:MapObjectView = event.currentTarget as MapObjectView;
-			var result:Boolean = _controller.collectItem(null, mapObjectView.itemID, collectHandler);
+			var result:Boolean = _controller.tryCollectItem(mapObjectView.itemID, collectHandler);
 			if (result) dropItemHander(mapObjectView.itemID);
 		}
 		
+		// обработчик события перемещения объекта на карте
 		protected function movingChangeMapObjectHandler(event:Event):void
 		{
 			if (_moving) return;
@@ -241,17 +268,29 @@ package views.map
 			startMovingObject(mapObjectView);
 		}
 		
+		// начать перемещать объект карты
 		protected function startMovingObject(object:IMapObjectView):void
 		{
 			_moving = true;
 			_currentMapObject = object;
+			if ((_currentMapObject as DisplayObject).parent == itemsLayer) {
+				itemsLayer.removeChild(_currentMapObject as DisplayObject);
+				itemsLayer.addChild(_currentMapObject as DisplayObject);
+			}
 			tilesLayer.setCheckingObject(object);
 		}
 		
+		// закончить перемещать объект карты
 		protected function stopMovingObject(save:Boolean = false):void
 		{
-			if (!save) dropCurrentObject();
-			else putCurrentObject();
+			if (!save) {
+				dropCurrentObject();
+			} else if (putCurrentObject()) {
+				var mapObjectView:MapObjectView = _currentMapObject as MapObjectView;
+				if (mapObjectView.parent)
+					mapObjectView.parent.removeChild(mapObjectView);
+				insertInSortedList(mapObjectView);
+			}
 			tilesLayer.clearCheckingObject();
 			_moving = false;
 		}

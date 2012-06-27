@@ -21,7 +21,13 @@ package views.states
 		
 		public function GameState(stateID:String, holder:DisplayObjectContainer, controller:ClientConnectionController)
 		{
-			_mapView = new MapView(controller, 30);
+			// создание модели
+			_model = Model.instance;
+			_model.addEventListener(Event.INIT, modelInitHandler);
+			_model.init(controller);
+			
+			// создание визуализации
+			_mapView = new MapView(controller, _model.getMapSize());
 			_controlPanel = new GameControlPanel(controller, _mapView);
 			
 			// создание списка активных объектов состояния
@@ -31,12 +37,6 @@ package views.states
 			
 			// получение данных о контроллере
 			_controller = controller;
-			
-			// создание модели
-			_model = Model.instance;
-			_model.addEventListener(Event.INIT, modelInitHandler);
-			_model.init(_controller);
-			
 			_controller.getResource("/media/background.jpg", _mapView.setBackgroundTexture);
 			
 			super(stateID, holder, inners);

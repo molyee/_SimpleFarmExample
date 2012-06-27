@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testrun name="" >
+<testsuite  name="Default Test Suite" project="PerkyFarmClient">
+<testsuite name="mathTestSuite.cases:DoubleIndexInserterTestCase" type="testsuiteclass"/>
+<testsuite name="modelTestSuite.cases:ModelTestCase" type="testsuiteclass"/>
+<testsuite name="mathTestSuite:MathTestSuite" type="testcaseclass"/>
+<testsuite name="modelTestSuite:ModelTestSuite" type="testcaseclass"/>
+</testsuite>
+</testrun>

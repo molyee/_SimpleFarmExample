@@ -6,7 +6,7 @@ package mathTestSuite
 	[RunWith("org.flexunit.runners.Suite")]
 	public class MathTestSuite
 	{
-		public var doubleIndexInserterTest:DoubleIndexInserterTestCase;
+		//public var doubleIndexInserterTest:DoubleIndexInserterTestCase;
 		
 		
 	}

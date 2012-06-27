@@ -48,7 +48,7 @@
 	<target name="compile" depends="init" description="Compile the application .swf file">
 		<mxmlc file="${src.dir}/${application.name}.as" 
 			output="${bin.dir}/${swf.file.name}.swf" configname="air"
-			debug="${debug.mode}" optimize="true" incremental="true">
+			debug="${debug.mode}" incremental="true">
 			
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
 			
@@ -72,8 +72,8 @@
 		<exec executable="${FLEX_HOME}/bin/adt.bat" failonerror="true">
 			<arg line="-package" />
 			<arg line="-storetype pkcs12" />
-			<arg line="-keystore ${air.out.dir}/FarmClient.p12" />
-			<arg line="-storepass 5tup1d" />
+			<arg line="-keystore ${air.out.dir}/FarmCertificate.p12" />
+			<arg line="-storepass restart" />
 			<arg line="${air.out.dir}/FarmClient.air" />
 			<arg line="${air.out.dir}/application.xml" />
 			<arg line="-C ${bin.dir}/${swf.file.name}.swf" />

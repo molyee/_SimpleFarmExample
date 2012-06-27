@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Этот файл создан Flash Builder автоматически для компиляции классов FlexUnit и не предназначен для изменений.
+Для обновления этого файла щелкните по значку "Обновить" в представлении "Результаты FlexUnit". -->
+
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Script>
+		<![CDATA[
+			import modelTestSuite.ModelTestSuite;
+			import mathTestSuite.MathTestSuite;
+			import mathTestSuite.cases.DoubleIndexInserterTestCase;
+			import modelTestSuite.cases.ModelTestCase;
+			
+			private var modelTestSuite_ModelTestSuite_obj:modelTestSuite.ModelTestSuite;
+			
+			
+			private var mathTestSuite_MathTestSuite_obj:mathTestSuite.MathTestSuite;
+			
+			
+			private var mathTestSuite_cases_DoubleIndexInserterTestCase_obj:mathTestSuite.cases.DoubleIndexInserterTestCase;
+			
+			
+			private var modelTestSuite_cases_ModelTestCase_obj:modelTestSuite.cases.ModelTestCase;
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Разместить невизуальные элементы (например, службы или объекты значений) -->
+	</fx:Declarations>
+</s:WindowedApplication>

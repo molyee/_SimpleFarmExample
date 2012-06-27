@@ -87,10 +87,10 @@ package views.map
 			Isometric.MAP_WIDTH = _normalWidth;
 			Isometric.MAP_HEIGHT = _normalHeight;
 			
-			CONFIG::debug {
+			//CONFIG::debug {
 				showCells();
 				//setCheckingPath(3, 4);
-			}
+			//}
 		}
 		
 		// показать сетку

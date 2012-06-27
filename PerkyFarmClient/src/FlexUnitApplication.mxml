@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Этот файл создан автоматически и не предназначен для изменений. -->
+
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:flexui="flexunit.flexui.*" creationComplete="onCreationComplete()">
+	<fx:Script>
+		<![CDATA[
+			import modelTestSuite.cases.ModelTestCase;
+			import mathTestSuite.cases.DoubleIndexInserterTestCase;
+			import modelTestSuite.ModelTestSuite;
+			import mathTestSuite.MathTestSuite;
+			
+			public function currentRunTestSuite():Array
+			{
+				var testsToRun:Array = new Array();
+				testsToRun.push(mathTestSuite.MathTestSuite);
+				testsToRun.push(modelTestSuite.ModelTestSuite);
+				testsToRun.push(mathTestSuite.cases.DoubleIndexInserterTestCase);
+				testsToRun.push(modelTestSuite.cases.ModelTestCase);
+				return testsToRun;
+			}
+			
+			
+			private function onCreationComplete():void
+			{
+				testRunner.runWithFlexUnit4Runner(currentRunTestSuite(), "PerkyFarmClient");
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Разместить невизуальные элементы (например, службы или объекты значений) -->
+	</fx:Declarations>
+	<flexui:FlexUnitTestRunnerUI id="testRunner">
+	</flexui:FlexUnitTestRunnerUI>
+</s:WindowedApplication>
