@@ -53,7 +53,7 @@ package controllers
 		 */
 		public function ClientConnectionController()
 		{
-			_client = new Client(this, null, true);
+			_client = new Client(this, new User(), null, true);
 			_resourceStorage = new ResourceStorage();
 			super();
 		}
@@ -179,7 +179,7 @@ package controllers
 		 * @param callback Обработчик, получающий данные о запрошенном пользователе
 		 * @private
 		 */	
-		override public function getUserData(userID:String, callback:Function):void
+		public function getUserData(userID:String, callback:Function):void
 		{
 			_client.connection.send("getUserData", userID, callback);
 		}
@@ -193,7 +193,7 @@ package controllers
 		 * @return Результат первичной валидации данных
 		 * 
 		 */
-		override public function getItem(userID:String, itemID:String, callback:Function):Boolean
+		public function getItem(userID:String, itemID:String, callback:Function):Boolean
 		{
 			var user:User = userID != null ? Model.instance.getUser(userID) : _client.currentUser;
 			if (!user || !user.id) return false;
@@ -212,7 +212,7 @@ package controllers
 		 * @param callback Обработчик, получающий данные о шаблоне объекта
 		 * @private
 		 */
-		override public function getItemTypeData(itemType:String, callback:Function):void
+		public function getItemTypeData(itemType:String, callback:Function):void
 		{
 			callback(ItemType.getItemTypeData(itemType));
 		}
@@ -223,10 +223,12 @@ package controllers
 		 * @param callback Обработчик, получающий данные о типах объектов
 		 * @private
 		 */	
-		override public function getItemTypes(callback:Function):void
+		public function getItemTypes(callback:Function):void
 		{
 			callback(Model.instance.getItemTypes());
 		}
+		
+		// ------ user api ------
 		
 		/**
 		 * Создание нового объекта и установка его в указанную точку на карте пользователя
@@ -239,9 +241,9 @@ package controllers
 		 * @return Идентификатор созданного объекта возвращается при успешном выполнении операции
 		 * 
 		 */	
-		override public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String
+		public function tryPlaceItem(itemType:String, xpos:int, ypos:int, callback:Function):String
 		{
-			var res:String = super.placeItem(_client, itemType, xpos, ypos, callback);
+			var res:String = super.placeItem(_client, itemType, xpos, ypos);
 			if (res != null) _client.connection.send("placeItem", { item_type: itemType, x: xpos, y: ypos }, callback);
 			return res;
 		}
@@ -249,7 +251,6 @@ package controllers
 		/**
 		 * Перемещение существующего объекта в указанную точку на карте пользователя
 		 * 
-		 * @param client Объект клиента, сгенерировавшего запрос (необходим для получения данных о пользователе)
 		 * @param itemID Идентификатор объекта карты пользователя
 		 * @param xpos Значение позиции X установки объекта на карту (координата тайла)
 		 * @param ypos Значение позиции Y установки объекта на карту (координата тайла)
@@ -258,9 +259,9 @@ package controllers
 		 * в ином случае возвращается null
 		 * 
 		 */
-		override public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
+		public function tryMoveItem(itemID:String, xpos:int, ypos:int, callback:Function):Boolean
 		{
-			var res:Boolean = super.moveItem(_client, itemID, xpos, ypos, callback);
+			var res:Boolean = super.moveItem(_client, itemID, xpos, ypos);
 			if (res) _client.connection.send("moveItem", { id: itemID, x: xpos, y: ypos }, callback);
 			return res;
 		}
@@ -268,15 +269,14 @@ package controllers
 		/**
 		 * Сбор подготовленного объекта с карты пользователя и помещение его в инвентарь пользователя
 		 * 
-		 * @param client Объект клиента, сгенерировавшего запрос (необходим для получения данных о пользователе)
 		 * @param itemID Идентификатор объекта карты пользователя
 		 * @param callback Обработчик, получающий результат удаления объекта с карты и помещения его в инвентарь
 		 * @return Флаг успешного выполнения функции сбора объекта
 		 * 
 		 */
-		override public function collectItem(client:Client, itemID:String, callback:Function):Boolean
+		public function tryCollectItem(itemID:String, callback:Function):Boolean
 		{
-			var res:Boolean = super.collectItem(_client, itemID, callback);
+			var res:Boolean = super.collectItem(_client, itemID);
 			if (res) _client.connection.send("collectItem", itemID, callback);
 			return res;
 		}
@@ -284,7 +284,6 @@ package controllers
 		/**
 		 * Инкремент уровня объектов карты
 		 * 
-		 * @param client Объект клиента, сгенерировавшего запрос (необходим для получения данных о пользователе)
 		 * @param itemIDs Список идентификаторов объектов, требующих применения инкремента уровня,
 		 * если список равен null, то процедура выполняет инкремент для всех объектов, для которых доступно
 		 * такое действие, возвращая список идентификаторов объектов, над которыми процедура была выполнена успешно
@@ -292,11 +291,11 @@ package controllers
 		 * @return Список идентификаторов объектов, к которым была успешно применена процедура инкремента уровня
 		 * 
 		 */
-		override public function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array
+		public function tryUpgradeItems(itemIDs:Array, callback:Function):Array
 		{
-			var res:Array = super.upgradeItems(_client, itemIDs, callback) as Array;
+			var res:Array = super.upgradeItems(_client, itemIDs) as Array;
 			if (res && res.length > 0)
-				_client.connection.send("upgradeAllItems", res, callback);
+				_client.connection.send("upgradeItems", res, callback);
 			return res;
 		}
 		

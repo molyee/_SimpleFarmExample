@@ -47,63 +47,6 @@ package controllers
 			throw("Abstract method getResource(url:String, callback:Function) must be overriden");
 		}
 		
-		/**
-		 * Получение данных о пользователе
-		 * 
-		 * @param userID Уникальный идентификатор пользователя, о котором требуется получить
-		 * информацию
-		 * @param callback Обработчик, получающий данные о запрошенном пользователе
-		 * @private
-		 */	
-		public function getUserData(userID:String, callback:Function):void
-		{
-			throw("Abstract method getUserData(userID:String, callback:Function) must be overriden");
-		}
-		
-		/**
-		 * Получение данных об объекте на карте пользователя
-		 * 
-		 * @param userID Идентификатор пользователя, являющегося владельцем объекта
-		 * @param itemID Уникальный идентификатор объекта, расположенного на карте пользователя
-		 * @param callback Обработчик, получающий данные об объекте карты
-		 * @return Результат первичной валидации данных
-		 * 
-		 */
-		public function getItem(userID:String, itemID:String, callback:Function):Boolean
-		{
-			var user:User = Model.instance.getUser(userID);
-			if (!user || !user.id) return false;
-			var item:Item = user.getItem(itemID);
-			if (item != null) {
-				callback(item);
-				return true;
-			}
-			return false;
-		}
-		
-		/**
-		 * Получение данных о типе (шаблоне) объекта
-		 * 
-		 * @param itemType Наименование типа объекта
-		 * @param callback Обработчик, получающий данные о шаблоне объекта
-		 * @private
-		 */
-		public function getItemTypeData(itemType:String, callback:Function):void
-		{
-			throw("Abstract method getItemTypeData(itemType:String, callback:Function) must be overriden");
-		}
-		
-		/**
-		 * Получение данных о всех типах (шаблонах) объектов
-		 * 
-		 * @param callback Обработчик, получающий данные о типах объектов
-		 * @private
-		 */	
-		public function getItemTypes(callback:Function):void
-		{
-			throw("Abstract method getItemTypes(callback:Function) must be overriden");
-		}
-		
 		// ------ user api
 		
 		/**
@@ -117,7 +60,7 @@ package controllers
 		 * @return Идентификатор созданного объекта возвращается при успешном выполнении операции
 		 * 
 		 */	
-		public function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String
+		public function placeItem(client:Client, itemType:String, xpos:int, ypos:int):String
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return null;
@@ -136,7 +79,7 @@ package controllers
 		 * в ином случае возвращается null
 		 * 
 		 */
-		public function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean
+		public function moveItem(client:Client, itemID:String, xpos:int, ypos:int):Boolean
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return false;
@@ -152,7 +95,7 @@ package controllers
 		 * @return Флаг успешного выполнения функции сбора объекта
 		 * 
 		 */
-		public function collectItem(client:Client, itemID:String, callback:Function):Boolean
+		public function collectItem(client:Client, itemID:String):Boolean
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return false;
@@ -166,11 +109,10 @@ package controllers
 		 * @param itemIDs Список идентификаторов объектов, требующих применения инкремента уровня,
 		 * если список равен null, то процедура выполняет инкремент для всех объектов, для которых доступно
 		 * такое действие, возвращая список идентификаторов объектов, над которыми процедура была выполнена успешно
-		 * @param callback Обработчик, получающий результат выполнения процедуры инкремента уровня
 		 * @return Список идентификаторов объектов, к которым была успешно применена процедура инкремента уровня
 		 * 
 		 */	
-		public function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array
+		public function upgradeItems(client:Client, itemIDs:Array):Array
 		{
 			var user:User = client.currentUser;
 			if (!user || !user.id) return null;

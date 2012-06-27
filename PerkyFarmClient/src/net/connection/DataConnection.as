@@ -127,9 +127,9 @@ package net.connection
 				callback = messageData['callback'];
 				if (callback != null)
 					callback(data);
-				var error:Object = data['error'];
+				/*var error:Object = data['error'];
 				if (error != null)
-					throw("SERVER_ERROR: method=" + method + ", code=" + error.code + ", message=" + error.message);
+					throw("SERVER_ERROR: method=" + method + ", code=" + error.code + ", message=" + error.message);*/
 			} else { // если вызов был произведен с удаленного объекта
 				method = result['method'];
 				_callHandler(_client, method, data, function(data:*):void {

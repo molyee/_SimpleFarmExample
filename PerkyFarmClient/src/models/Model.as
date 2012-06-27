@@ -26,6 +26,11 @@ package models
 		public static const USER_REMOVED:String = "userRemoved";
 		
 		/**
+		 * Размер карты в ячейках (на одну сторону)
+		 */
+		public static const MAP_SIZE:int = 30;
+		
+		/**
 		 * Экземпляр-одиночка модели
 		 * 
 		 */
@@ -172,6 +177,16 @@ package models
 			delete _users[userID];
 			dispatchEvent(new ObjectEvent(USER_REMOVED, user));
 			return true;
+		}
+		
+		/**
+		 * Получение размера карты
+		 * 
+		 * @return Размер квадратной карты в количестве ячеек на сторону квадрата
+		 */
+		public function getMapSize():int
+		{
+			return MAP_SIZE;
 		}
 		
 		/**

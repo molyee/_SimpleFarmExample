@@ -12,14 +12,16 @@
 		<![CDATA[
 			import controllers.ServerConnectionController;
 			
-			import data.DBConnection;
-			import data.ServerResourceStorage;
+			import database.DBConnection;
+			import database.ServerResourceStorage;
 			
 			import events.ObjectEvent;
 			
 			import logging.Logger;
 			
 			import models.Model;
+			
+			import mx.collections.ArrayCollection;
 			
 			
 			public static const DEBUG:Boolean = true; // триггер состояния
@@ -36,7 +38,7 @@
 			
 			private var model:Model;
 			[Bindable]
-			private var users:Array = [];
+			private var users:ArrayCollection = new ArrayCollection();
 			
 			private var storage:ServerResourceStorage;
 			
@@ -45,9 +47,10 @@
 				// добавление финализатора серверного приложения
 				nativeApplication.addEventListener(Event.EXITING, exitingHandler, false, 0, true);
 				
-				if (DEBUG)
+				CONFIG::debug {
 					Logger.instance.addListener(logHandler);
-				
+				}
+					
 				// создание подключения к базе данных
 				dbConnection = new DBConnection();
 				
@@ -110,14 +113,14 @@
 			
 			private function addUserHandler(event:ObjectEvent):void
 			{
-				users.push(event.data);
+				users.addItem(event.data);
 			}
 			
 			private function removeUserHandler(event:ObjectEvent):void
 			{
-				var index:int = users.indexOf(event.data);
-				if (index == -1) return;
-				users.splice(index, 1);
+				var index:int = users.getItemIndex(event.data);
+				if (index != -1)
+				users.removeItemAt(index);
 			}
 			
 			// обработчик события добавления нового клиента
@@ -165,11 +168,11 @@
 		<mx:DataGrid x="10" y="10" width="520" height="510">
 			<mx:dataProvider>{users}</mx:dataProvider>
 			<mx:columns>
-				<mx:DataGridColumn headerText="UserID" dataField="id" width="120"/>
-				<mx:DataGridColumn headerText="Logged" dataField="logged" width="50"/>
-				<mx:DataGridColumn headerText="Items" dataField="numItems" width="50"/>
-				<mx:DataGridColumn headerText="Inventory" dataField="numInventoryItems" width="50"/>
-				<mx:DataGridColumn headerText="Delete" width="100"/>
+				<mx:DataGridColumn headerText="UserID" dataField="id" width="150"/>
+				<mx:DataGridColumn headerText="Logged" dataField="logged" width="70"/>
+				<mx:DataGridColumn headerText="Items" dataField="numItems" width="70"/>
+				<mx:DataGridColumn headerText="Inventory" dataField="numInventoryItems" width="70"/>
+				<mx:DataGridColumn headerText="NextItemID" dataField="item_uuid" width="70"/>
 			</mx:columns>
 		</mx:DataGrid>
 	</s:Panel>

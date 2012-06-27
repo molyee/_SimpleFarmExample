@@ -27,44 +27,6 @@ package controllers
 		function getResource(url:String, callback:Function):void;
 		
 		/**
-		 * Получение данных о пользователе
-		 * 
-		 * @param userID Уникальный идентификатор пользователя, о котором требуется получить
-		 * информацию
-		 * @param callback Обработчик, получающий данные о запрошенном пользователе
-		 * 
-		 */		
-		function getUserData(userID:String, callback:Function):void;
-		
-		/**
-		 * Получение данных об объекте на карте пользователя
-		 * 
-		 * @param userID Идентификатор пользователя, являющегося владельцем объекта
-		 * @param itemID Уникальный идентификатор объекта, расположенного на карте пользователя
-		 * @param callback Обработчик, получающий данные об объекте карты
-		 * @return Результат первичной валидации данных
-		 * 
-		 */		
-		function getItem(userID:String, itemID:String, callback:Function):Boolean;
-		
-		/**
-		 * Получение данных о типе (шаблоне) объекта
-		 * 
-		 * @param itemType Наименование типа объекта
-		 * @param callback Обработчик, получающий данные о шаблоне объекта
-		 * 
-		 */		
-		function getItemTypeData(itemType:String, callback:Function):void;
-		
-		/**
-		 * Получение данных о всех типах (шаблонах) объектов
-		 * 
-		 * @param callback Обработчик, получающий данные о типах объектов
-		 * 
-		 */		
-		function getItemTypes(callback:Function):void;
-		
-		/**
 		 * Создание нового объекта и установка его в указанную точку на карте пользователя
 		 * 
 		 * @param client Объект клиента, сгенерировавшего запрос (необходим для получения данных о пользователе)
@@ -75,7 +37,7 @@ package controllers
 		 * @return Идентификатор созданного объекта возвращается при успешном выполнении операции
 		 * 
 		 */		
-		function placeItem(client:Client, itemType:String, xpos:int, ypos:int, callback:Function):String;
+		function placeItem(client:Client, itemType:String, xpos:int, ypos:int):String;
 		
 		/**
 		 * Перемещение существующего объекта в указанную точку на карте пользователя
@@ -84,12 +46,11 @@ package controllers
 		 * @param itemID Идентификатор объекта карты пользователя
 		 * @param xpos Значение позиции X установки объекта на карту (координата тайла)
 		 * @param ypos Значение позиции Y установки объекта на карту (координата тайла)
-		 * @param callback Обработчик, получающий результат перемещения объекта в указанную точку
 		 * @return Идентификатор созданного объекта возвращается при успешном выполнении операции,
 		 * в ином случае возвращается null
 		 * 
 		 */
-		function moveItem(client:Client, itemID:String, xpos:int, ypos:int, callback:Function):Boolean;
+		function moveItem(client:Client, itemID:String, xpos:int, ypos:int):Boolean;
 		
 		/**
 		 * Сбор подготовленного объекта с карты пользователя и помещение его в инвентарь пользователя
@@ -100,7 +61,7 @@ package controllers
 		 * @return Флаг успешного выполнения функции сбора объекта
 		 * 
 		 */
-		function collectItem(client:Client, itemID:String, callback:Function):Boolean;
+		function collectItem(client:Client, itemID:String):Boolean;
 		
 		/**
 		 * Инкремент уровня объектов карты
@@ -109,11 +70,10 @@ package controllers
 		 * @param itemIDs Список идентификаторов объектов, требующих применения инкремента уровня,
 		 * если список равен null, то процедура выполняет инкремент для всех объектов, для которых доступно
 		 * такое действие, возвращая список идентификаторов объектов, над которыми процедура была выполнена успешно
-		 * @param callback Обработчик, получающий результат выполнения процедуры инкремента уровня
 		 * @return Список идентификаторов объектов, к которым была успешно применена процедура инкремента уровня
 		 * 
 		 */		
-		function upgradeItems(client:Client, itemIDs:Array, callback:Function):Array;
+		function upgradeItems(client:Client, itemIDs:Array):Array;
 		
 		/**
 		 * Удаленный вызов метода контроллера с ограничением, обозначенным классом, реализующим интерфейс
@@ -122,7 +82,6 @@ package controllers
 		 * и данных о соединении пользователя)
 		 * @param method Наименование вызываемого метода
 		 * @param data Данные передаваемые методу
-		 * @param callback Обработчик, ожидающий получения результата выполнения запроса
 		 * 
 		 */		
 		function call(client:Client, method:String, data:*, callback:Function):void;

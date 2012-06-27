@@ -39,6 +39,11 @@ package net.connection
 		 * 
 		 */
 		public function get currentUser():User { return _currentUser; }
+		/**
+		 * Установщик ссылки на объект пользователя
+		 * @private
+		 */
+		public function set currentUser(value:User):void { _currentUser = value; }
 		
 		/**
 		 * Конструктор клиента
@@ -48,10 +53,10 @@ package net.connection
 		 * @param	forceReconnection Триггер включения переподключения к удаленному хосту, true - клиент переподключается при разрыве соединения
 		 * 
 		 */
-		public function Client(controller:IConnectionController, socket:Socket = null, forceReconnection:Boolean = false) 
+		public function Client(controller:IConnectionController, user:User, socket:Socket = null, forceReconnection:Boolean = false) 
 		{
 			_controller = controller;
-			_currentUser = new User();
+			_currentUser = user;
 			var serializer:* = new XMLSerializer();
 			var connectionID:String = Math.round(Math.random() * 1000000000).toString()
 			_connection = new DataConnection(connectionID, _controller.call, this, CompressedUTFDataProtocol, serializer, socket, forceReconnection);

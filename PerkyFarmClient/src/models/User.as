@@ -1,6 +1,7 @@
 package models
 {
 	import flash.geom.Point;
+	
 	import models.Item;
 	import models.VObject;
 	
@@ -15,7 +16,8 @@ package models
 		 * Текущее значение уникального идентификатора объекта
 		 * 
 		 */
-		public var item_uuid:uint;
+		[Bindable]
+		public var item_uuid:int;
 		
 		/**
 		 * Уникальный идентификатор пользователя
@@ -39,8 +41,10 @@ package models
 		 * Триггер авторизованности пользователя
 		 * 
 		 */
+		[Bindable]
 		public var logged:Boolean;
 		
+		[Bindable]
 		protected var _numItems:uint;
 		/**
 		 * Количество объектов на карте пользователя
@@ -48,6 +52,7 @@ package models
 		 */
 		public function get numItems():uint { return _numItems; }
 		
+		[Bindable]
 		protected var _numInventoryItems:uint;
 		/**
 		 * Количество элементов в инвентаре пользователя
@@ -87,20 +92,29 @@ package models
 			// TODO(Alex Sarapulov): добавить валидацию данных (не все можно изменять извне)
 			init(changes);
 			
-			var item:Item;
-			var counter:uint = 0;
-			for each (item in items) {
-				counter++;
-			}
-			_numItems = counter;
-			
-			counter = 0;
-			for each (item in items) {
-				counter++;
-			}
-			_numInventoryItems = counter;
+			_numItems = countAndFixItems(items);
+			_numInventoryItems = countAndFixItems(inventory);
 			
 			return true;
+		}
+		
+		/**
+		 * Посчет количества объектов, а также правка не десериализованных данных
+		 * 
+		 * @param	itemsData Список объектов
+		 * @private
+		 */
+		protected function countAndFixItems(items:Object):int
+		{
+			var item:*;
+			var counter:int = 0;
+			for (var itemID:String in items) {
+				item = items[itemID];
+				if (!(item is Item))
+					items[itemID] = new Item(item);
+				counter++;
+			}
+			return counter;
 		}
 		
 		/**
@@ -305,10 +319,14 @@ package models
 		public function checkEmptyPositions(xpos:int, ypos:int, size:Array):Boolean
 		{
 			var mapLink:Object = map;
-			var i0:int = x - int(size[0] / 2) - 1;
-			var j0:int = y - int(size[1] / 2);
+			var i0:int = xpos - int(size[0] / 2) - 1;
+			if (i0 < 0) return false; // если вышли за левый край карты
+			var j0:int = ypos - int(size[1] / 2);
+			if (j0 < 0) return false; // если вышли за верхний край карты
 			var n:int = i0 + size[0];
+			if (n > Model.MAP_SIZE) return false; // если вышли за правый край карты
 			var m:int = j0 + size[1];
+			if (m > Model.MAP_SIZE) return false; // если вышли за нижний край карты
 			for (var i:int = i0; i < n; i++) {
 				for (var j:int = j0; j < m; j++) {
 					var item:Item = mapLink[i + "_" + j];
@@ -329,8 +347,7 @@ package models
 			// TODO(Alex Sarapulov): проверить, возможно лучше вычислять карту каждый раз,
 			// а не хранить ее, чтобы не занимать память
 			_map = { };
-			for each (var itemID:String in items) {
-				var item:Item = getItem(itemID);
+			for each (var item:Item in items) {
 				_map[item.x + "_" + item.y] = item;
 			}
 			return _map;
