@@ -89,6 +89,7 @@ package controllers
 		 * Обработчик события потери соединения с сервером
 		 * 
 		 * @param	event Событие, информирующее о потере подключения с сервером
+		 * 
 		 */
 		protected function closeHandler(event:Event):void
 		{
@@ -105,6 +106,7 @@ package controllers
 		 * @private
 		 */
 		protected var _loginHandler:Function;
+		
 		/**
 		 * Триггер ожидания авторизации, свидетельствующий о состоянии клиента, который отправил запрос на авторизацию,
 		 * но при этом еще не получил ответ от сервера

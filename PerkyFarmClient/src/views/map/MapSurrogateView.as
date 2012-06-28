@@ -9,14 +9,24 @@ package views.map
 	import models.SkinData;
 	
 	/**
+	 * Простой класс заместитель визуального объекта карты
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class MapSurrogateView extends ImageLoader implements IMapObjectView
 	{
 		protected var _xpos:int;
+		/**
+		 * X-позиция ячейки привязки к карте
+		 * 
+		 */
 		public function get xpos():int { return _xpos; }
+		
 		protected var _ypos:int;
+		/**
+		 * Y-позиция ячейки привязки к карте
+		 * 
+		 */
 		public function get ypos():int { return _ypos; }
 		
 		public function get w():int { return _itemType.size[0]; }
