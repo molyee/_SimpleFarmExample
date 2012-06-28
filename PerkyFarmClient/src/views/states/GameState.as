@@ -10,15 +10,21 @@ package views.states
 	import views.map.MapView;
 	import views.panels.GameControlPanel;
 	
+	// класс игровой страницы
 	[Event(name="complete", type="flash.events.Event")]
 	public class GameState extends BaseState
 	{
+		// карта мира
 		private var _mapView:MapView;
+		// панель управления
 		private var _controlPanel:GameControlPanel;
 		
+		// модель
 		private var _model:Model;
+		// контроллер
 		private var _controller:ClientConnectionController;
 		
+		// -- конструктор
 		public function GameState(stateID:String, holder:DisplayObjectContainer, controller:ClientConnectionController)
 		{
 			// создание модели
@@ -42,22 +48,25 @@ package views.states
 			super(stateID, holder, inners);
 		}
 		
+		// обработчик завершения инициализации модели
 		private function modelInitHandler(event:Event):void 
 		{
 			_mapView.currentUser = _controller.client.currentUser;
 		}
 		
+		// запуск состояния игры
 		override public function start():void
 		{
-			
 			trace(_stateID + " started");
 		}
 		
+		// остановка состояния игры
 		override public function stop():void
 		{
 			trace(_stateID + " stopped");
 		}
 		
+		// обработчик изменения размера контейнера
 		override public function resize(width:Number, height:Number):void
 		{
 			_mapView.resize(width, height);

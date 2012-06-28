@@ -18,54 +18,127 @@ package views.map
 	 */
 	public class TilesLayer extends Sprite
 	{
+		// -- константы
+		
+		/** Цвет рамки ячейки */
 		public static const BOUNDS_COLOR:uint = 0x000000;
+		/** Альфа канал рамки ячейки */
 		public static const BOUNDS_ALPHA:Number = 0.3;
 		
+		/** Цвет доступной для постройки ячейки */
 		public static const ENABLED_COLOR:uint = 0x6633ff00;
+		/** Альфа канал доступной для постройки ячейки */
 		public static const ENABLED_ALPHA:Number = 0.5;
+		/** Цвет недоступной для постройки ячейки */
 		public static const BUSY_COLOR:uint = 0x66ffffff;
+		/** Альфа канал недоступной для постройки ячейки */
 		public static const BUSY_ALPHA:Number = 0.5;
 		
 		protected var _normalWidth:Number;
+		/**
+		 * Ширина области сетки ячеек (пиксели)
+		 * 
+		 */
 		public function get normalWidth():Number { return _normalWidth; }
 		
 		protected var _normalHeight:Number;
+		/**
+		 * Высота области сетки ячеек (пиксели)
+		 * 
+		 */
 		public function get normalHeight():Number { return _normalHeight; }
 		
-		// количество ячеек по ширине и высоте
 		protected var _size:int;
+		/**
+		 * Размер сетки ячеек (количество ячеек квадратной сетки)
+		 * 
+		 */
 		public function get size():int { return _size; }
 		
-		// горизонтальное смещение карты
 		protected var _xpos:Number;
+		/**
+		 * Горизонтальное смещение карты ячеек от начала координат карты
+		 * 
+		 */
 		public function get xpos():Number { return _xpos; }
-		// вертикальное смещение карты
+		
 		protected var _ypos:Number;
+		/**
+		 * Вертикальное смещение карты ячеек от начала координат карты
+		 * 
+		 */
 		public function get ypos():Number { return _ypos; }
 		
-		protected var _cellsBounds:Bitmap; // рамки ячеек
-		protected var _cellsVisible:Boolean; // триггер показа рамок ячеек
+		/**
+		 * Визуализация рамок ячеек
+		 * @private
+		 */
+		protected var _cellsBounds:Bitmap;
 		
-		// карта заполнения ячеек
+		/**
+		 * Триггер показа рамок ячеек
+		 * @private
+		 */
+		protected var _cellsVisible:Boolean;
+		
 		protected var _objectsMap:Object;
+		/**
+		 * Ссылка на карту заполнения ячеек (только запись)
+		 * 
+		 */
 		public function set objectsMap(value:Object):void { _objectsMap = value; };
 		
-		protected var _checkingPath:Boolean; // триггер запуска проверки ячеек
+		/**
+		 * Триггер запуска проверки ячеек
+		 * @private
+		 */
+		protected var _checkingPath:Boolean;
 		
-		protected var _currentObject:IMapObjectView; // проверяемый объект
-		protected var _lastTargetCell:Point; // предыдущая целевая позиция
-		protected var _lastColoredPositions:Array; // предыдущие залитые ячейки
+		/**
+		 * Проверяемый объект
+		 * @private
+		 */
+		protected var _currentObject:IMapObjectView;
 		
-		protected var _coloredBitmap:Bitmap; // растровый объект содержащий подсвеченные ячейки
-		protected var _coloredDrawer:Shape; // векторный объект, рисующий картинку подсвеченных ячеек
+		/**
+		 * Предыдущая целевая позиция
+		 * @private
+		 */
+		protected var _lastTargetCell:Point; // 
 		
+		/**
+		 * Предыдущие залитые ячейки
+		 * @private
+		 */
+		protected var _lastColoredPositions:Array;
 		
-		// ячейки, требующие заливки
+		/**
+		 * Растровый объект содержащий подсвеченные ячейки
+		 * @private
+		 */
+		protected var _coloredBitmap:Bitmap;
+		
+		/**
+		 * Векторный объект, рисующий картинку подсвеченных ячеек
+		 * @private
+		 */
+		protected var _coloredDrawer:Shape;
+		
+		/**
+		 * Ячейки, требующие заливки
+		 * @private
+		 */
 		protected var _coloredPositions:Object;
 		
-		
-		// -- конструктор
-		public function TilesLayer(size:Number, horizontalCellSize:Number = 100, verticalCellSize:Number = 50) 
+		/**
+		 * Конструктор уровня ячеек
+		 * 
+		 * @param	size Размер сетки ячеек (количество ячеек любой из сторон)
+		 * @param	horizontalCellSize Ширина ромба ячейки (пиксели)
+		 * @param	verticalCellSize Высота ромаб ячейки (пиксели)
+		 * 
+		 */
+		public function TilesLayer(size:int, horizontalCellSize:Number = 100, verticalCellSize:Number = 50) 
 		{
 			super();
 			
@@ -88,12 +161,15 @@ package views.map
 			Isometric.MAP_HEIGHT = _normalHeight;
 			
 			//CONFIG::debug {
-				showCells();
+				//showCells();
 				//setCheckingPath(3, 4);
 			//}
 		}
 		
-		// показать сетку
+		/**
+		 * Показать рамки всех ячеек
+		 * 
+		 */
 		public function showCells():void
 		{
 			if (_cellsVisible) return;
@@ -102,14 +178,20 @@ package views.map
 			this.addChildAt(_cellsBounds, 0);
 		}
 		
-		// скрыть сетку
+		/**
+		 * Скрыть рамки всех ячеек
+		 * 
+		 */
 		public function hideCells():void
 		{
 			if (!_cellsVisible) return;
 			this.removeChild(_cellsBounds);
 		}
 		
-		// подготовка сетки ячеек
+		/**
+		 * Подготовка сетки ячеек
+		 * 
+		 */
 		protected function prepareCellsBounds():void
 		{
 			_cellsBounds = new Bitmap();
@@ -136,7 +218,12 @@ package views.map
 			_cellsBounds.y = Isometric.PADDING_Y;
 		}
 		
-		// запуск проверки ячеек вокруг объекта карты
+		/**
+		 * Запуск проверки ячеек вокруг объекта карты
+		 * 
+		 * @param	object Визуальный объект на карте
+		 * 
+		 */
 		public function setCheckingObject(object:IMapObjectView):void
 		{
 			if (_checkingPath)
@@ -148,7 +235,10 @@ package views.map
 			this.addEventListener(Event.ENTER_FRAME, movePositionHandler);
 		}
 		
-		// остановка проверки ячеек
+		/**
+		 * Остановка проверки ячеек
+		 * 
+		 */
 		public function clearCheckingObject():void
 		{
 			this.removeEventListener(Event.ENTER_FRAME, movePositionHandler);
@@ -159,7 +249,12 @@ package views.map
 			_checkingPath = false;
 		}
 		
-		// обработчик изменения положения мыши
+		/**
+		 * Обработчик изменения положения мыши
+		 * 
+		 * @param	event Событие, оповещающее о необходимости проверки и обновления позиционной ячейки
+		 * @private
+		 */
 		protected function movePositionHandler(event:Event = null):void
 		{
 			if (!_checkingPath || !_currentObject)
@@ -187,21 +282,45 @@ package views.map
 			drawColoredCells();
 		}
 		
-		// получение позиции ячейки по координатам текущего контейнера
-		public function getTargetCell(xpos:Number, ypos:Number):Point
+		/**
+		 * Получение позиции ячейки по координатам текущего контейнера
+		 * 
+		 * @param	xpos X-позиция точки на карте (пиксели)
+		 * @param	ypos Y-позиция точки на карте (пиксели)
+		 * @return Позиция ячейки в сетке
+		 * 
+		 */
+		public function getTargetCell(x:Number, y:Number):Point
 		{
-			var normalPosition:Point = Isometric.isometricToNormal(xpos, ypos);
+			var normalPosition:Point = Isometric.isometricToNormal(x, y);
 			return normalPosition;
 		}
 		
-		// проверка на отсутствие объектов в ячейке
-		protected function checkPosition(xpos:int, ypos:int, ignoredObject:* = null):*
+		/**
+		 * Проверка на отсутствие объектов в ячейке
+		 * 
+		 * @param	xpos X-позиция ячейки в сетке
+		 * @param	ypos Y-позиция ячейки в сетке
+		 * @param	ignoredObject Игнорируемый объект при проверке (если перемещаем
+		 * какой-то объект, то его привязанную позицию нужно игнорировать, чтобы можно
+		 * было ставить объект на прежнее место)
+		 * @return Доступность позиции для постройки, true - место свободно, постройка доступна
+		 * @private
+		 */
+		protected function checkPosition(xpos:int, ypos:int, ignoredObject:* = null):Boolean
 		{
 			var cellObject:* = getObject(xpos, ypos);
 			return cellObject == null || cellObject == ignoredObject;
 		}
 		
-		// взятие объекта, находящегося в ячейке
+		/**
+		 * Получение объекта, находящегося в ячейке
+		 * 
+		 * @param	xpos X-позиция ячейки в сетке
+		 * @param	ypos Y-позиция ячейки в сетке
+		 * @return Объект, привязанный к ячейке (установленный в ячейку)
+		 * 
+		 */
 		public function getObject(xpos:int, ypos:int):*
 		{
 			if (xpos < 0 || xpos >= _size || ypos < 0 || ypos >= _size)
@@ -210,7 +329,14 @@ package views.map
 			return object;
 		}
 		
-		// получение ячеек вокруг целевой позиции с учетом размеров целевого объекта
+		/**
+		 * Получение ячеек вокруг целевой позиции с учетом размеров целевого объекта
+		 * 
+		 * @param	targetCell Координаты целевой ячейки (X и Y позиции ячейки)
+		 * @param	object Целевой объект, имеющий собственнуй размер
+		 * @return Массив ячеек, находящихся под объектом
+		 * 
+		 */
 		public function getPositions(targetCell:Point, object:IMapObjectView):Array
 		{
 			var positions:Array = [];
@@ -226,7 +352,12 @@ package views.map
 			return positions;
 		}
 		
-		// заливка позиций
+		/**
+		 * Заливка ячеек цветом
+		 * 
+		 * @param	positions Массив подцвеченных позиций
+		 * @private
+		 */
 		protected function coloringPositions(positions:Array):void
 		{
 			if (!positions || positions.length == 0) return;
@@ -239,7 +370,15 @@ package views.map
 			drawColoredCells();
 		}
 		
-		// установка цвета позиции
+		/**
+		 * Установка цвета ячейки
+		 * 
+		 * @param	xpos X-позиция ячейки в сетке
+		 * @param	ypos Y-позиция ячейки в сетке
+		 * @param	color Цвет ячейки
+		 * @param	alpha Альфа канал ячейки
+		 * @private
+		 */
 		protected function setPositionColor(xpos:int, ypos:int, color:uint, alpha:Number = 1):void
 		{
 			if (xpos < 0 || xpos >= _size || ypos < 0 || ypos >= _size)
@@ -247,13 +386,23 @@ package views.map
 			_coloredPositions[xpos + "_" + ypos] = [color, alpha];
 		}
 		
-		// очистка цвета позиции
+		/**
+		 * Очистка цвета ячейки
+		 * 
+		 * @param	xpos X-позиция ячейки в сетке
+		 * @param	ypos Y-позиция ячейки в сетке
+		 * @private
+		 */
 		protected function clearPositionColor(xpos:int, ypos:int):void
 		{
 			delete _coloredPositions[xpos + "_" + ypos];
 		}
 		
-		// отрисовка ячеек, которым назначен цвет
+		/**
+		 * Отрисовка ячеек, которым назначен цвет
+		 * 
+		 * @private
+		 */
 		protected function drawColoredCells():void
 		{
 			_coloredDrawer.graphics.clear();
@@ -271,7 +420,15 @@ package views.map
 			_coloredBitmap.y = bounds.y;
 		}
 		
-		// рисование одной ячейки (ромба)
+		/**
+		 * Отрисовка одной ячейки (ромба)
+		 * 
+		 * @param	graphics Объект графики, обрабатывающий отрисовку
+		 * @param	xpos X-позиция ячейки в сетке
+		 * @param	ypos Y-позиция ячейки в сетке
+		 * @param	color Цвет заливки ячейки
+		 * @param	alpha Альфа канал заливки ячейки
+		 */
 		protected function drawCell(graphics:Graphics, xpos:int, ypos:int, color:uint, alpha:Number = 1):void
 		{
 			var v:Vector.<Point> = new Vector.<Point>(4);

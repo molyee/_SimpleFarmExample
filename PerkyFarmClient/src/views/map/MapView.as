@@ -23,45 +23,122 @@ package views.map
 		/** Константа состояния перемещения постройки */
 		public static const MOVING_STATE:String = "moving";
 		
-		// текущее состояние
 		protected var _currentState:String = "normal";
+		/**
+		 * Текущее состояние управления картой
+		 * 
+		 */
 		public function get currentState():String { return _currentState; }
 		
 		
 		// -- уровни
-		protected var backgroundLayer:BackgroundLayer; // уровень фона
-		protected var tilesLayer:TilesLayer; // уровень ячеек
-		protected var itemsLayer:Sprite; // уровень объектов
 		
-		// текущий размер сцены
+		/**
+		 * Уровень фона
+		 * 
+		 */
+		protected var backgroundLayer:BackgroundLayer;
+		
+		/**
+		 * Уровень ячеек
+		 * 
+		 */
+		protected var tilesLayer:TilesLayer;
+		
+		/**
+		 * Уровень объектов
+		 * 
+		 */
+		protected var itemsLayer:Sprite;
+		
+		
+		// -- текущий размер сцены
+		
+		/**
+		 * Ширина сцены
+		 * @private
+		 */
 		protected var _stageWidth:Number;
+		
+		/**
+		 * Высота сцены
+		 * @private
+		 */
 		protected var _stageHeight:Number;
 		
-		// максимальное расстояние смещения карты (при перетаскивании),
-		// учитывающее отпускание кнопки мыши как клик
+		// -- действия мыши
+		
+		/**
+		 * Максимальное расстояние смещения карты (при перетаскивании) в пикселях,
+		 * учитывающее отпускание кнопки мыши как клик
+		 * @private
+		 */
 		protected static const DRAG_DEMPER:Number = 5;
 		
-		protected var _lastPosition:Point; // предыдущее положение курсора мыши на сцене (при перемещении карты)
-		protected var _downPosition:Point; // позиция на сцене, на которой была нажата кнопка мыши
-		protected var _dragging:Boolean = false; // состояние перетаскивания карты
-		protected var _dragEnabled:Boolean = true; // триггер доступности функции перемещения карты с помощью мыши
+		/**
+		 * Предыдущее положение курсора мыши на сцене (при перемещении карты)
+		 * @private
+		 */
+		protected var _lastPosition:Point;
 		
-		// точка на карте, на которую следует фокусироваться
+		/**
+		 * Позиция на сцене, на которой была нажата кнопка мыши
+		 * @private
+		 */
+		protected var _downPosition:Point;
+		
+		/**
+		 * Состояние перетаскивания карты
+		 * @private
+		 */
+		protected var _dragging:Boolean = false;
+		
+		/**
+		 * Триггер доступности функции перемещения карты с помощью мыши
+		 * @private
+		 */
+		protected var _dragEnabled:Boolean = true;
+		
+		/**
+		 * Точка на карте, на которую следует фокусироваться
+		 * @private
+		 */
 		protected var _target:Point; 
 		
-		// заместитель строящегося объекта
+		/**
+		 * Активный объект (перемещаемый в данный момента)
+		 * @private
+		 */
 		protected var _currentMapObject:IMapObjectView;
 		
+		/**
+		 * Триггер запущенного перемещения объекта
+		 * @private
+		 */
 		protected var _moving:Boolean;
 		
+		/**
+		 * Список визуализаций объектов карты
+		 * @private
+		 */
 		protected var _items:Object = { };
 		
-		// ссылка на контроллер
+		/**
+		 * Ссылка на контроллер
+		 * @private
+		 */
 		protected var _controller:ClientConnectionController;
 		
-		// ссылка на текущего пользователя
 		protected var _currentUser:User;
+		/**
+		 * Текущий пользователь, чья карта отображается
+		 * 
+		 */
 		public function get currentUser():User { return _currentUser; }
+		/**
+		 * Установка текущего пользователя, и обновление объектов карты
+		 * @private
+		 */
 		public function set currentUser(value:User):void {
 			_currentUser = value;
 			tilesLayer.objectsMap = _currentUser.map;
@@ -73,10 +150,17 @@ package views.map
 			}
 		}
 		
-		protected var _indexInserter:DoubleIndexInserter;
+		// объект контролирующий быструю вставку в сортированный по Y-оси список объектов карты
+		//protected var _indexInserter:DoubleIndexInserter;
 		
 		
-		// -- конструктор
+		/**
+		 * Конструктор класса карты
+		 * 
+		 * @param	controller Ссылка на контроллер клиента
+		 * @param	size Размер карты в ячейках по одной из сторон сетки
+		 * 
+		 */
 		public function MapView(controller:ClientConnectionController, size:int)
 		{
 			super();
@@ -100,13 +184,24 @@ package views.map
 			this.addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
 		}
 		
-		// обновление текстуры фона
+		/**
+		 * Обновление текстуры фона
+		 * 
+		 * @param	texture Растровые данные текстуры
+		 * 
+		 */
 		public function setBackgroundTexture(texture:BitmapData):void
 		{
 			backgroundLayer.setTexture(texture);
 		}
 		
-		// установка состояния (строительсто или норма)
+		/**
+		 * Установка состояния (строительсто или норма)
+		 * 
+		 * @param	state Идентификатор (наименование) состояния
+		 * @param	data Данные передаваемые создателю суррогата визуального объекта
+		 * 
+		 */
 		public function setState(state:String, data:* = null):void
 		{
 			if (_currentState == state) return;
@@ -120,11 +215,20 @@ package views.map
 				else
 					_moving = false;
 			}
+			if (state == NORMAL_STATE)
+				tilesLayer.showCells();
+			else
+				tilesLayer.hideCells();
 			//trace("set map state", state);
 			dispatchEvent(new Event(Event.CHANGE));
 		}
 		
-		// создание псевдообъекта, который может быть построен (преобразован в нормальный объект на карте)
+		/**
+		 * Создание псевдообъекта, который может быть построен (преобразован в нормальный объект на карте)
+		 * 
+		 * @param	itemType Данные типа объекта карты
+		 * @private
+		 */
 		protected function createSurrogate(itemType:ItemType):void
 		{
 			var surrogate:MapSurrogateView = new MapSurrogateView(itemType);
@@ -132,7 +236,10 @@ package views.map
 			startMovingObject(surrogate);
 		}
 		
-		// удаление псевдообъекта с карты
+		/**
+		 * Удаление псевдообъекта с карты
+		 * @private
+		 */
 		protected function dropCurrentObject():void
 		{
 			if (!_currentMapObject) return;
@@ -147,7 +254,12 @@ package views.map
 			_currentMapObject = null;
 		}
 		
-		// постройка объекта на карте
+		/**
+		 * Постройка объекта на карте
+		 * 
+		 * @return Предварительный результат постройки
+		 * @private
+		 */
 		protected function putCurrentObject():Boolean
 		{
 			var mapObjectView:MapObjectView = _currentMapObject as MapObjectView;
@@ -155,7 +267,12 @@ package views.map
 			return result;
 		}
 		
-		// обработчик события клика по сцене
+		/**
+		 * Обработчик события клика по сцене
+		 * 
+		 * @param	event Событие клика мыши по сцене
+		 * @private
+		 */
 		protected function clickHandler(event:MouseEvent):void
 		{
 			trace("clicked in state", _currentState);
@@ -187,7 +304,12 @@ package views.map
 			return;
 		}
 		
-		// установка нового объекта карты
+		/**
+		 * Установка нового объекта карты
+		 * 
+		 * @param	mapObject Модель объекта карты
+		 * 
+		 */
 		public function place(mapObject:Item):void
 		{
 			var mapObjectView:MapObjectView = new MapObjectView(mapObject);
@@ -195,7 +317,12 @@ package views.map
 			setState(NORMAL_STATE);
 		}
 		
-		// добавление визуального объекта карты
+		/**
+		 * Добавление визуального объекта карты
+		 * 
+		 * @param	mapObjectView Визуализация объекта карты
+		 * @private
+		 */
 		protected function addItemHander(mapObjectView:MapObjectView):void
 		{
 			mapObjectView.addEventListener(MapObjectView.UPGRADE, upgradeMapObjectHandler);
@@ -208,7 +335,12 @@ package views.map
 			_items[mapObjectView.itemID] = mapObjectView;
 		}
 		
-		// удаление визуального объекта карты
+		/**
+		 * Удаление визуального объекта карты
+		 * 
+		 * @param	itemID Идентификатор удаленного с карты объекта)
+		 * @private
+		 */
 		protected function dropItemHander(itemID:String):void
 		{
 			var mapObjectView:MapObjectView = _items[itemID];
@@ -222,7 +354,12 @@ package views.map
 			delete _items[itemID];
 		}
 		
-		// сортировка объектов карты по Y-оси
+		/**
+		 * Вставка объектов карты по Y-оси в сортированный список отображения объектов
+		 * 
+		 * @param	mapObjectView Визуализация объекта карты
+		 * 
+		 */
 		protected function insertInSortedList(mapObjectView:MapObjectView):void
 		{
 			var len:int = itemsLayer.numChildren;
@@ -235,7 +372,13 @@ package views.map
 			itemsLayer.addChildAt(mapObjectView, i);
 		}
 		
-		// обработчик события обновления уровня объекта
+		/**
+		 * Обработчик события обновления уровня объекта
+		 * 
+		 * @param	event Событие, уведомляющее о требовании запуска повышения уровня объекта,
+		 * генерируется при клике на здание
+		 * @private
+		 */
 		public function upgradeMapObjectHandler(event:Event = null):void
 		{
 			var itemIDs:Array;
@@ -246,7 +389,12 @@ package views.map
 			return;
 		}
 		
-		// обработчик события сбора объекта
+		/**
+		 * Обработчик события сбора объекта
+		 * 
+		 * @param	event Событие, уведомляющее о требовании запуска сбора объекта с карты
+		 * @private
+		 */
 		protected function collectMapObjectHandler(event:Event):void
 		{
 			var mapObjectView:MapObjectView = event.currentTarget as MapObjectView;
@@ -254,7 +402,12 @@ package views.map
 			if (result) dropItemHander(mapObjectView.itemID);
 		}
 		
-		// обработчик события перемещения объекта на карте
+		/**
+		 * Обработчик события перемещения объекта на карте
+		 * 
+		 * @param	event Событие, уведомляющее о требовании запуска начала перемещения объекта с карты
+		 * @private
+		 */
 		protected function movingChangeMapObjectHandler(event:Event):void
 		{
 			if (_moving) return;
@@ -268,7 +421,13 @@ package views.map
 			startMovingObject(mapObjectView);
 		}
 		
-		// начать перемещать объект карты
+		// 
+		/**
+		 * Старт процесса перемещения объекта карты
+		 * 
+		 * @param	object Визуализация объекта карты или суррогат объекта карты, который требуется перемещать
+		 * @private
+		 */
 		protected function startMovingObject(object:IMapObjectView):void
 		{
 			_moving = true;
@@ -280,7 +439,12 @@ package views.map
 			tilesLayer.setCheckingObject(object);
 		}
 		
-		// закончить перемещать объект карты
+		/**
+		 * Завершение процесса перемещения объекта карты
+		 * 
+		 * @param	save Триггер говорит о том, следует ли сохранить позицию объекта
+		 * @private
+		 */
 		protected function stopMovingObject(save:Boolean = false):void
 		{
 			if (!save) {
@@ -295,33 +459,60 @@ package views.map
 			_moving = false;
 		}
 		
+		// -- обработчики ответов сервера на действия клиента
 		
-		
-		
-		// обработчик серверного ответа на установку объекта
-		public function placeHandler(data:*):void
+		/**
+		 * Обработчик ответа сервера на установку объекта
+		 * 
+		 * @param	data Результат установки объекта
+		 * @private
+		 */
+		protected function placeHandler(data:*):void
 		{
 			trace("from server " + data);
 		}
 		
-		public function upgradeHandler(data:*):void
+		/**
+		 * Обработчик ответа сервера на повышение уровня объекта
+		 * 
+		 * @param	data Результат апгрейда объекта
+		 * @private
+		 */
+		protected function upgradeHandler(data:*):void
 		{
 			trace("from server " + data);
 		}
 		
-		public function collectHandler(data:*):void
+		/**
+		 * Обработчик ответа сервера на сбор готового объекта
+		 * 
+		 * @param	data Результат сбора объекта
+		 * @private
+		 */
+		protected function collectHandler(data:*):void
 		{
 			trace("from server " + data);
 		}
 		
-		public function moveHandler(data:*):void
+		/**
+		 * Обработчик ответа сервера на установку объекта
+		 * 
+		 * @param	data Результат установки объекта
+		 * @private
+		 */
+		protected function moveHandler(data:*):void
 		{
 			trace("from server " + data);
 		}
 		
 		// -- включение и выключение карты
 		
-		// обработчик события добавление карты на сцену
+		/**
+		 * Обработчик события добавление карты на сцену
+		 * 
+		 * @param	event Событие, уведомляющее о добавлении карты на сцену
+		 * @private
+		 */
 		protected function addedToStageHandler(event:Event = null):void
 		{
 			this.addEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
@@ -338,7 +529,12 @@ package views.map
 			this.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
 		}
 		
-		// обработчик события удаление карты со сцены
+		/**
+		 * Обработчик события удаления карты со сцены
+		 * 
+		 * @param	event Событие, уведомляющее об удалении карты со сцены
+		 * @private
+		 */
 		protected function removedFromStage(event:Event):void
 		{
 			this.removeEventListener(Event.REMOVED_FROM_STAGE, removedFromStage);
@@ -350,7 +546,12 @@ package views.map
 		
 		// -- перемещение карты с помощью мыши
 		
-		// обработчик события опускания кнопки мыши
+		/**
+		 * Обработчик события опускания кнопки мыши
+		 * 
+		 * @param	event Событие зажатия кнопки мыши
+		 * @private
+		 */
 		protected function mouseDownHandler(event:MouseEvent):void
 		{
 			_downPosition = new Point(event.stageX, event.stageY);
@@ -358,7 +559,12 @@ package views.map
 			this.addEventListener(Event.ENTER_FRAME, draggingHandler);
 		}
 		
-		// обработчик события поднятия кнопки мыши
+		/**
+		 * Обработчик события поднятия кнопки мыши
+		 * 
+		 * @param	event Событие отжатия кнопки мыши
+		 * @private
+		 */
 		protected function mouseUpHandler(event:MouseEvent):void
 		{
 			this.removeEventListener(Event.ENTER_FRAME, draggingHandler);
@@ -371,7 +577,12 @@ package views.map
 			_lastPosition = null;
 		}
 		
-		// обработчик события перемещения мыши на сцене
+		/**
+		 * Обработчик события перемещения мыши на сцене при зажатом состоянии кнопки мыши
+		 * 
+		 * @param	event Событие перемещения курсора мыши
+		 * @private
+		 */
 		protected function draggingHandler(event:Event):void
 		{
 			var deltaX:Number;
@@ -393,7 +604,10 @@ package views.map
 		
 		// -- позиционирование камеры
 		
-		// центрирование положения карты вокруг фокусной точки
+		/**
+		 * Центрирование положения карты вокруг фокусной точки
+		 * 
+		 */
 		public function center():void
 		{
 			var _x:Number = _target.x + _stageWidth / 2 - backgroundLayer.width;
@@ -401,7 +615,14 @@ package views.map
 			moveTo(_x, _y, false);
 		}
 		
-		// перемещение карты на заданную позицию
+		/**
+		 * Перемещение карты на заданную позицию
+		 * 
+		 * @param	xpos Х-координата перемещения (пиксели)
+		 * @param	ypos Y-координата перемещения (пиксели)
+		 * @param	updateTargetPosition Триггер обновления точки фокуса карты
+		 * @private
+		 */
 		protected function moveTo(xpos:Number, ypos:Number, updateTargetPosition:Boolean = true):void
 		{
 			if (xpos > 0) xpos = 0;
@@ -418,7 +639,13 @@ package views.map
 			y = ypos;
 		}
 		
-		// обработчик изменения размера контейнера
+		/**
+		 * Обработчик изменения размера контейнера
+		 * 
+		 * @param	width Ширина контейнера (сцены)
+		 * @param	height Высота контейнера (сцены)
+		 * 
+		 */
 		public function resize(width:Number, height:Number):void
 		{
 			_stageWidth = stage.stageWidth;

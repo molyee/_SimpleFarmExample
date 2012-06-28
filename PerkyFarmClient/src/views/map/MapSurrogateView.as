@@ -29,11 +29,28 @@ package views.map
 		 */
 		public function get ypos():int { return _ypos; }
 		
+		/**
+		 * Ширина объекта в ячейках карты (размер X)
+		 * 
+		 */
 		public function get w():int { return _itemType.size[0]; }
+		
+		/**
+		 * Высота объекта в ячейках карты (размер Y)
+		 * 
+		 */
 		public function get h():int { return _itemType.size[1]; }
 		
 		protected var _enabled:Boolean;
+		/**
+		 * Триггер доступности действий с объектом
+		 * 
+		 */
 		public function get enabled():Boolean { return _enabled; }
+		/**
+		 * Установщик флага доступности объекта
+		 * @private
+		 */
 		public function set enabled(value:Boolean):void {
 			if (_enabled == value) return;
 			_enabled = value;
@@ -43,13 +60,31 @@ package views.map
 				filters = ColorMatrix.BLACK_AND_WHITE_FILTERS;
 		}
 		
+		/**
+		 * Идентификатор модели объекта карты (не используется)
+		 * @private
+		 */
 		public function get itemID():String { return null; }
 		
+		/**
+		 * Ссылка на модель объекта карты (не используется)
+		 * @private
+		 */
 		public function get mapObject():Item { return null; }
 		
 		protected var _itemType:ItemType;
+		/**
+		 * Тип объекта карты
+		 * 
+		 */
 		public function get itemType():ItemType { return _itemType; }
 		
+		/**
+		 * Конструктор класса
+		 * 
+		 * @param	itemType Данные типа объекта
+		 * 
+		 */
 		public function MapSurrogateView(itemType:ItemType) 
 		{
 			_itemType = itemType;
@@ -59,6 +94,13 @@ package views.map
 			this.alpha = 0.7;
 		}
 		
+		/**
+		 * Установка позиции суррогата в ячейку на карте
+		 * 
+		 * @param	xpos X-позиция ячейки
+		 * @param	ypos Y-позиция ячейки
+		 * 
+		 */
 		public function setPosition(xpos:int, ypos:int):void
 		{
 			_xpos = xpos;
@@ -68,6 +110,10 @@ package views.map
 			y = pos.y;
 		}
 		
+		/**
+		 * Деструктор объекта
+		 * 
+		 */
 		override public function dispose():void
 		{
 			super.dispose();

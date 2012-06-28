@@ -11,11 +11,12 @@ package views.panels
 	import flash.text.TextFormat;
 	import views.controls.buttons.GLabeledButton;
 	
-	[Event(name="complete", type="flash.events.Event")]
 	/**
+	 * Форма авторизации
 	 * ...
 	 * @author Alex Sarapulov
 	 */
+	[Event(name="complete", type="flash.events.Event")]
 	public class LoginForm extends Sprite
 	{
 		private static const PADDING_X:Number = 10;
@@ -86,6 +87,7 @@ package views.panels
 				connectHandler();
 		}
 		
+		// инициализация формы
 		public function init():void
 		{
 			_loginInput.addEventListener(FocusEvent.FOCUS_IN, inputFocusInHandler);
@@ -102,6 +104,7 @@ package views.panels
 			}
 		}
 		
+		// обработчик подключения к серверу
 		private function connectHandler(event:Event = null):void
 		{
 			_loginButton.enabled = true;
@@ -110,6 +113,7 @@ package views.panels
 			}
 		}
 		
+		// очистка формы и остановка действий с формой
 		public function clear():void
 		{
 			_loginInput.removeEventListener(FocusEvent.FOCUS_IN, inputFocusInHandler);

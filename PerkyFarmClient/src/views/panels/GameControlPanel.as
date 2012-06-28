@@ -11,15 +11,27 @@ package views.panels
 	import views.controls.buttons.GLabeledButton;
 	import views.map.MapView;
 	
+	/**
+	 * Класс панели управления игровым процессом
+	 * ...
+	 * @author Alex Sarapulov
+	 */
 	public class GameControlPanel extends Sprite
 	{
+		// ссылка на контроллер
 		private var _controller:ClientConnectionController;
+		// карта
 		private var _mapView:MapView;
+		// панель выбора елементов для постройки
 		private var _itemSelector:ItemSelectPanel;
+		// кнопка отмены действия
 		private var _cancelButton:GLabeledButton;
+		// кнопка начать/закончить перемещение объекта на карте
 		private var _moveButton:GLabeledButton;
+		// кнопка повышения уровня всех объектов на карте
 		private var _upgradeButton:GLabeledButton;
 		
+		// -- конструктор
 		public function GameControlPanel(controller:ClientConnectionController, mapView:MapView)
 		{
 			_mapView = mapView;
