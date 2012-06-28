@@ -1,6 +1,5 @@
 package views.panels 
 {
-	import controllers.IConnectionController;
 	import display.utils.BitmapCache;
 	import events.ObjectEvent;
 	import flash.display.Bitmap;
@@ -9,42 +8,84 @@ package views.panels
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.MouseEvent;
-	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import models.ItemType;
 	import views.controls.buttons.ItemTypeIcon;
 	
 	/**
+	 * Класс панели выбора объекта для постройки (установки на карте)
 	 * ...
 	 * @author Alex Sarapulov
 	 */
 	public class ItemSelectPanel extends Sprite 
 	{
-		// константы размеров панели выбора объектов
-		public static const PANEL_WIDTH:int = 385;
-		public static const PANEL_HEIGHT:int = 100;
+		// -- константы
 		
-		// константы управления сворачиванием и разворачиванием панели
-		public static const PANEL_HIDDEN_DELTA:int = 90;
-		public static const ANIM_SPEED:Number = 0.85;
+		/**
+		 * Ширина панели
+		 * 
+		 */
+		protected static const PANEL_WIDTH:int = 385;
 		
-		// отступ внутренних элементов от края панели
+		/**
+		 * Высота панели в открытой форме
+		 * @private
+		 */
+		protected static const PANEL_HEIGHT:int = 100;
+		
+		/**
+		 * Высота парели в закрытой форме
+		 * @private
+		 */
+		protected static const PANEL_HIDDEN_DELTA:int = 90;
+		
+		/**
+		 * Скорость анимации при сворачивании/разворачивании панели
+		 * @private
+		 */
+		protected static const ANIM_SPEED:Number = 0.85;
+		
+		/**
+		 * Отступ внутренних элементов от левого края панели
+		 * @private
+		 */
 		protected static const PADDING_X:int = 15;
+		
+		/**
+		 * Отступ внутренних элементов от верхнего края панели
+		 * @private
+		 */
 		protected static const PADDING_Y:int = 15;
-		// дистанция между элементами панели
+		
+		/**
+		 * Дистанция между элементами панели
+		 * @private
+		 */
 		protected static const CELL_SPACING:int = 10;
 		
-		// родительский контейнер
+		/**
+		 * Родительский контейнер
+		 * @private
+		 */
 		protected var _holder:Sprite;
 		
-		// состояние включенной анимации (true)
+		/**
+		 * Состояние включенной анимации (true)
+		 * @private
+		 */
 		protected var _animated:Boolean;
 		
-		// триггер доступности действий
 		protected var _enabled:Boolean = true;
+		/**
+		 * Триггер доступности действий (выбора элементов
+		 * 
+		 */
 		public function get enabled():Boolean { return _enabled; }
 		
-		// -- конструктор
+		/**
+		 * Конструктор класса панели выбора элементов
+		 * 
+		 */
 		public function ItemSelectPanel() 
 		{
 			_holder = new Sprite();
@@ -62,7 +103,12 @@ package views.panels
 			else this.addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		
-		// обработчик добавления панели на сцену
+		/**
+		 * Обработчик добавления панели на сцену
+		 * 
+		 * @param	event Событие добавления панели в дисплей лист
+		 * @private
+		 */
 		protected function init(event:Event = null):void
 		{
 			if (event)
@@ -70,7 +116,12 @@ package views.panels
 			resize(stage.stageWidth, stage.stageHeight);
 		}
 		
-		// обновление списка элементов в панели
+		/**
+		 * Обновление списка элементов в панели
+		 * 
+		 * @param	itemTypesData Данные о типах объектов карты
+		 * 
+		 */
 		public function updateItemTypes(itemTypesData:Object):void
 		{
 			var itemType:ItemType;
@@ -89,14 +140,22 @@ package views.panels
 			if (stage) init();
 		}
 		
-		// обработчик клика по элементу в списке панели
+		/**
+		 * Обработчик клика по элементу в списке панели
+		 * 
+		 * @param	event Событие клика по элементу в списке элементов панели
+		 * 
+		 */
 		protected function clickItemHandler(event:MouseEvent):void
 		{
 			var icon:ItemTypeIcon = event.currentTarget as ItemTypeIcon;
 			select(icon.itemType);
 		}
 		
-		// показать панель
+		/**
+		 * Показать панель
+		 * 
+		 */
 		public function show():void
 		{
 			if (_enabled) return;
@@ -106,7 +165,10 @@ package views.panels
 			this.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		}
 		
-		// скрыть панель
+		/**
+		 * Скрыть панель
+		 * 
+		 */
 		public function hide():void
 		{
 			if (!_enabled) return;
@@ -116,7 +178,12 @@ package views.panels
 			this.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		}
 		
-		// обработчик событий входа в кадр для создания анимации движения
+		/**
+		 * Обработчик событий входа в кадр для создания анимации движения
+		 * 
+		 * @param	event Событие входа в кадр
+		 * 
+		 */
 		protected function enterFrameHandler(event:Event):void
 		{
 			var targetY:Number = _enabled ? 0 : PANEL_HIDDEN_DELTA 
@@ -127,14 +194,25 @@ package views.panels
 			_animated = false;
 		}
 		
-		// выбор объекта в списке элементов
+		/**
+		 * Выбор объекта в списке элементов
+		 * 
+		 * @param	itemType Данные о типе объекта
+		 * 
+		 */
 		public function select(itemType:ItemType):void
 		{
 			trace(itemType.name + " selected");
 			dispatchEvent(new ObjectEvent(Event.SELECT, itemType));
 		}
 		
-		// обработчик изменения размеров контейнера
+		/**
+		 * Обработчик изменения размеров контейнера
+		 * 
+		 * @param	width Ширина родительского контейнера (пиксели)
+		 * @param	height Высота родительского контейнера (пиксели)
+		 * 
+		 */
 		public function resize(width:Number, height:Number):void
 		{
 			this.x = (width - this.width) / 2;

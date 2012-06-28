@@ -7,8 +7,6 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	
-	import mx.core.WindowedApplication;
-	
 	import views.states.BaseState;
 	import views.states.GameState;
 	import views.states.IBaseState;

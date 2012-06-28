@@ -19,30 +19,91 @@ package views.panels
 	[Event(name="complete", type="flash.events.Event")]
 	public class LoginForm extends Sprite
 	{
-		private static const PADDING_X:Number = 10;
-		private static const PADDING_Y:Number = 10;
-		private static const SELL_SPACING_X:Number = 10;
-		private static const SELL_SPACING_Y:Number = 10;
+		// -- константы
 		
-		public static var DEFAULT_LOGIN_LABEL:String = "login";
-		public static var DEFAULT_PASSWORD_LABEL:String = "password";
-		
-		private var _loginButton:GLabeledButton;
-		
-		private var _loginInput:TextField;
-		private var _passwordInput:TextField;
-		
+		/**
+		 * Цвет рамки полей ввода в обычном состоянии
+		 * @private
+		 */
 		private static const ENABLED_BORDER_COLOR:uint = 0x33cc00;
+		
+		/**
+		 * Цвет рамки полей ввода в состоянии ввода неверных данных (не прошедших валидацию)
+		 * @private
+		 */
 		private static const LOCKED_BORDER_COLOR:uint = 0xff0000;
 		
-		private var _connection:ClientConnectionController;
+		/**
+		 * Отступ внутренних элементов формы от рамки формы слева
+		 * @private
+		 */
+		private static const PADDING_X:Number = 10;
 		
-		// -- конструктор
-		public function LoginForm(connection:ClientConnectionController)
+		/**
+		 * Отступ внутренних элементов формы от рамки формы сверху
+		 * @private
+		 */
+		private static const PADDING_Y:Number = 10;
+		
+		/**
+		 * Расстояние между внутренними элементами по оси X
+		 * @private
+		 */
+		private static const CELL_SPACING_X:Number = 10;
+		
+		/**
+		 * Расстояние между внутренними элементами по оси Y
+		 * @private
+		 */
+		private static const CELL_SPACING_Y:Number = 10;
+		
+		/**
+		 * Стандартный текст в поле ввода логина
+		 * 
+		 */
+		public static var DEFAULT_LOGIN_LABEL:String = "login";
+		
+		/**
+		 * Стандартный текст в поле ввода пароля
+		 * 
+		 */
+		public static var DEFAULT_PASSWORD_LABEL:String = "password";
+		
+		/**
+		 * Кнопка отправки запроса авторизации
+		 * @private
+		 */
+		private var _loginButton:GLabeledButton;
+		
+		/**
+		 * Поле ввода логина
+		 * @private
+		 */
+		private var _loginInput:TextField;
+		
+		/**
+		 * Поле ввода пароля
+		 * @private
+		 */
+		private var _passwordInput:TextField;
+		
+		/**
+		 * Ссылка на контроллер клиента
+		 * @private
+		 */
+		private var _controller:ClientConnectionController;
+		
+		/**
+		 * Конструктор формы авторизации
+		 * 
+		 * @param	connection Контроллер клиента
+		 * 
+		 */
+		public function LoginForm(controller:ClientConnectionController)
 		{
 			super();
 			
-			_connection = connection;
+			_controller = controller;
 			
 			var inputTformat:TextFormat = new TextFormat("Calibri", 16, 0x666666, null, null, null, null, null, null, 6, 6);
 			
@@ -81,13 +142,16 @@ package views.panels
 			_loginButton.enabled = false;
 			this.addChild(_loginButton);
 			
-			if (!_connection.connected)
-				_connection.addEventListener(Event.CONNECT, connectHandler);
+			if (!_controller.connected)
+				_controller.addEventListener(Event.CONNECT, connectHandler);
 			else
 				connectHandler();
 		}
 		
-		// инициализация формы
+		/**
+		 * Инициализация формы
+		 * 
+		 */
 		public function init():void
 		{
 			_loginInput.addEventListener(FocusEvent.FOCUS_IN, inputFocusInHandler);
@@ -104,7 +168,12 @@ package views.panels
 			}
 		}
 		
-		// обработчик подключения к серверу
+		/**
+		 * Обработчик успешного подключения к серверу
+		 * 
+		 * @param	event Событие, уведомляющее об успешном подключении к серверу
+		 * @private
+		 */
 		private function connectHandler(event:Event = null):void
 		{
 			_loginButton.enabled = true;
@@ -113,7 +182,10 @@ package views.panels
 			}
 		}
 		
-		// очистка формы и остановка действий с формой
+		/**
+		 * Очистка формы и остановка действий с формой
+		 * 
+		 */
 		public function clear():void
 		{
 			_loginInput.removeEventListener(FocusEvent.FOCUS_IN, inputFocusInHandler);
@@ -125,7 +197,12 @@ package views.panels
 			_loginButton.handler = null;
 		}
 		
-		// обработчик события получения фокуса input-полем формы
+		/**
+		 * Обработчик события получения фокуса input-полем формы
+		 * 
+		 * @param	event Событие получения фокуса полем ввода
+		 * @private
+		 */
 		private function inputFocusInHandler(event:FocusEvent):void
 		{
 			var input:TextField = event.currentTarget as TextField;
@@ -139,7 +216,12 @@ package views.panels
 			}
 		}
 		
-		// обработчик события потери фокуса input-полем формы
+		/**
+		 * Обработчик события потери фокуса input-полем формы
+		 * 
+		 * @param	event Событие потери фокуса полем ввод
+		 * @private
+		 */
 		private function inputFocusOutHandler(event:FocusEvent):void
 		{
 			var input:TextField = event.currentTarget as TextField;
@@ -152,7 +234,12 @@ package views.panels
 			}
 		}
 		
-		// обработчик события ввода символов в поля формы
+		/**
+		 * Обработчик события ввода символов в поля формы
+		 * 
+		 * @param	event Событие ввода текста в поле
+		 * @private
+		 */
 		private function textFieldInputHandler(event:TextEvent):void
 		{
 			var input:TextField = event.currentTarget as TextField;
@@ -160,7 +247,12 @@ package views.panels
 				input.borderColor == ENABLED_BORDER_COLOR;
 		}
 		
-		// обработчик активации кнопки логина
+		/**
+		 * Обработчик активации кнопки логина
+		 * 
+		 * @param	button Объект кнопки, проявившей активность (в данном случае кнопка авторизации)
+		 * @private
+		 */
 		private function loginButtonClickHandler(button:BaseButton):void
 		{
 			var valid:Boolean = true;
@@ -179,14 +271,22 @@ package views.panels
 			if (valid) submit();
 		}
 		
-		// отправка данных формы
+		/**
+		 * Отправка данных формы
+		 * 
+		 */
 		private function submit():void
 		{
 			_loginButton.enabled = false;
 			_connection.login(_loginInput.text, _passwordInput.text, loginResultHandler);
 		}
 		
-		// получение результата авторизации
+		/**
+		 * Получение результата авторизации
+		 * 
+		 * @param	result Результат, полученный с сервера
+		 * @private
+		 */
 		private function loginResultHandler(result:Object):void
 		{
 			_loginButton.enabled = true;
@@ -204,7 +304,13 @@ package views.panels
 			dispatchEvent(new Event(Event.COMPLETE));
 		}
 		
-		// обработчик изменения размера внешнего контейнера
+		/**
+		 * Обработчик изменения размера внешнего контейнера
+		 * 
+		 * @param	width Ширина родительского контейнера
+		 * @param	height Высота родительского контейнера
+		 * 
+		 */
 		public function resize(width:Number, height:Number):void
 		{
 			var w:Number = _loginInput.width + 2 * PADDING_X;

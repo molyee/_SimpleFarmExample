@@ -29,7 +29,7 @@ package net.connection
 		
 		/**
 		 * Ссылка на контроллер, у которого клиент может вызывать выполнение функций
-		 * 
+		 * @private
 		 */
 		protected var _controller:IConnectionController;
 		

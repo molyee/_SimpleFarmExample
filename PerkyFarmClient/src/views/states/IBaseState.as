@@ -3,27 +3,50 @@ package views.states
 	import flash.events.IEventDispatcher;
 	
 	/**
+	 * Интерфейс состояния визуализации
 	 * ...
-	 * @author alex
+	 * @author Alex Sarapulov
 	 */
 	public interface IBaseState extends IEventDispatcher
 	{
-		// идентификатор состояния (имя)
+		/**
+		 * Идентификатор состояния (имя)
+		 * 
+		 */		
 		function get stateID():String;
 		
-		// триггер включения состояния
+		/**
+		 * Триггер включения состояния
+		 * 
+		 */		
 		function get selected():Boolean;
 		
-		// подключить(true)/отключить(false) состояние
+		/**
+		 * Подключить(true)/отключить(false) состояние
+		 * 
+		 */		
 		function setSelection(selected:Boolean):void;
 		
-		// запуск активности состояния
+		/**
+		 * Запуск активности состояния
+		 * 
+		 */		
 		function start():void;
 		
-		// остановка активности состояния
+		/**
+		 * Остановка активности состояния
+		 * 
+		 */		
 		function stop():void;
 		
-		// обработчик изменения внешнего контейнера (или stage), для обновления позиции и размера вхождения
+		/**
+		 * Обработчик изменения размера внешнего контейнера (или stage),
+		 * для обновления позиции и размера вхождения
+		 * 
+		 * @param width Ширина внешнего контейнера (пиксели)
+		 * @param height Высота внешнего контейнера (пиксели)
+		 * 
+		 */		
 		function resize(width:Number, height:Number):void;
 	}
 	

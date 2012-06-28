@@ -4,24 +4,56 @@ package views.states
 	import flash.display.DisplayObjectContainer;
 	import flash.events.EventDispatcher;
 	
+	/**
+	 * Базовый класс визуального состояния объекта, ролью которого является
+	 * создание списка подобъектов, которые должны быть включены в список 
+	 * отображения родительского контейнера при вызове показа состояния и скрыты
+	 * при необходимости в любой момент
+	 * 
+	 * @author Alex Sarapulov
+	 * 
+	 */	
 	public class BaseState extends EventDispatcher implements IBaseState
 	{
-		// идентификатор состояния (имя)
 		protected var _stateID:String;
+		/**
+		 * Идентификатор состояния (имя)
+		 * 
+		 * @return 
+		 * 
+		 */		
 		public function get stateID():String { return _stateID; }
 		
-		// ссылка на внешний контейнер
+		/**
+		 * Ссылка на внешний контейнер
+		 * @private
+		 */		
 		protected var _holder:DisplayObjectContainer;
 		
-		// объекты включенные в состояние
-		// (могут пренадлежать нескольким состояниям, но отображаться только в одном)
+		/**
+		 * Объекты включенные в состояние
+		 * @private
+		 */		
 		protected var _inners:Vector.<DisplayObject>;
 		
-		// триггер включения состояния
 		protected var _selected:Boolean;
+		/**
+		 * Триггер включения состояния
+		 * 
+		 * @return 
+		 * 
+		 */		
 		public function get selected():Boolean { return _selected; }
 		
-		// -- конструктор
+		/**
+		 * Конструктор класса состояния
+		 * 
+		 * @param stateID Идентификатор (наименование) состояния
+		 * @param holder Родительский контейнер
+		 * @param inners Визуальные объекты, включенные в список объектов
+		 * состояния
+		 * 
+		 */		
 		public function BaseState(stateID:String, holder:DisplayObjectContainer, inners:Vector.<DisplayObject>)
 		{
 			_holder = holder;
@@ -29,7 +61,12 @@ package views.states
 			_stateID = stateID;
 		}
 		
-		// подключить(true)/отключить(false) состояние
+		/**
+		 * Подключение (selected = true) или отключение (selected = false) состояния
+		 * 
+		 * @param selected Флаг включения состояния
+		 * 
+		 */		
 		public function setSelection(selected:Boolean):void
 		{
 			if (_selected == selected) return;
@@ -46,19 +83,32 @@ package views.states
 			}
 		}
 		
-		// запуск активности состояния
+		/**
+		 * Абстрактный метод запуска активности состояния
+		 * 
+		 */		
 		public function start():void
 		{
 			throw("BaseState class method start() must be overrided");
 		}
 		
-		// остановка активности состояния
+		/**
+		 * Абстрактный метод остановки активности состояния
+		 * 
+		 */		
 		public function stop():void
 		{
 			throw("BaseState class method stop() must be overrided");
 		}
 		
-		// обработчик изменения внешнего контейнера (или stage), для обновления позиции и размера вхождения
+		/**
+		 * Абстрактный обработчик изменения внешнего контейнера (или stage),
+		 * для обновления позиции и размера вхождения
+		 * 
+		 * @param width Ширина родительского контейнера
+		 * @param height Высота родительского контейнера
+		 * 
+		 */		
 		public function resize(width:Number, height:Number):void
 		{
 			throw("BaseState class method resize(width:Number, height:Number) must be overrided");

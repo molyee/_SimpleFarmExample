@@ -7,19 +7,36 @@ package views.states
 	
 	import views.panels.LoginForm;
 
+	/**
+	 * Класс состояния визуализации для неавторизованного пользователя
+	 * 
+	 */	
 	[Event(name="complete", type="flash.events.Event")]
 	public class LoginState extends BaseState
 	{
-		// триггер запуска
+		/**
+		 * Триггер запуска
+		 * 
+		 */		
 		private var _started:Boolean;
 		
-		// форма авторизации
+		/**
+		 * Форма авторизации
+		 * 
+		 */		
 		private var _loginForm:LoginForm;
 		
-		// -- конструктор
-		public function LoginState(stateID:String, holder:Sprite, connection:ClientConnectionController)
+		/**
+		 * Конструктор состояния авторизации
+		 * 
+		 * @param stateID Идентификатор состояния
+		 * @param holder Родительский контейнер
+		 * @param controller Ссылка на контроллер клиента
+		 * 
+		 */		
+		public function LoginState(stateID:String, holder:Sprite, controller:ClientConnectionController)
 		{
-			_loginForm = new LoginForm(connection);
+			_loginForm = new LoginForm(controller);
 			
 			var inners:Vector.<DisplayObject> = new Vector.<DisplayObject>();
 			inners.push(_loginForm);
@@ -27,7 +44,10 @@ package views.states
 			super(stateID, holder, inners);
 		}
 		
-		// запуск активности состояния
+		/**
+		 * Запуск активности состояния
+		 * 
+		 */		
 		override public function start():void
 		{
 			if (_started) return;
@@ -37,7 +57,10 @@ package views.states
 			trace(_stateID + " started");
 		}
 		
-		// остановка активности состояния
+		/**
+		 * Остановка активности состояния
+		 * 
+		 */		
 		override public function stop():void
 		{
 			if (!_started) return;
@@ -47,14 +70,26 @@ package views.states
 			trace(_stateID + " stopped");
 		}
 		
-		// обработчик завершения авторизации
+		/**
+		 * Обработчик завершения авторизации
+		 * 
+		 * @param event Событие завершения авторизации
+		 * @private
+		 */		
 		private function loginCompleteHandler(event:Event):void
 		{
 			event.stopImmediatePropagation();
 			dispatchEvent(new Event(Event.COMPLETE)); // сообщаем о завершении работы
 		}
 		
-		// обработчик изменения внешнего контейнера (или stage), для обновления позиции и размера вхождения
+		/**
+		 * Обработчик изменения родительского контейнера (или stage),
+		 * для обновления позиции и размера вхождения
+		 * 
+		 * @param width Ширина родительского контейнера
+		 * @param height Высота родительского контейнера
+		 * 
+		 */		
 		override public function resize(width:Number, height:Number):void
 		{
 			_loginForm.resize(width, height);
