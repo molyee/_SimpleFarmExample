@@ -161,7 +161,7 @@ package views.map
 			Isometric.MAP_HEIGHT = _normalHeight;
 			
 			//CONFIG::debug {
-				//showCells();
+				showCells();
 				//setCheckingPath(3, 4);
 			//}
 		}

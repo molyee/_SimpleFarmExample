@@ -129,7 +129,7 @@ package views.panels
 			_passwordInput.width = 200;
 			_passwordInput.height = 25;
 			_passwordInput.x = PADDING_X;
-			_passwordInput.y = _loginInput.y + _loginInput.height + SELL_SPACING_Y;
+			_passwordInput.y = _loginInput.y + _loginInput.height + CELL_SPACING_Y;
 			_passwordInput.maxChars = 16;
 			_passwordInput.restrict = "a-zA-Z0-9";
 			_passwordInput.displayAsPassword = true;
@@ -138,7 +138,7 @@ package views.panels
 			
 			_loginButton = new GLabeledButton("loginButton", "ENTER", 95, 35);
 			_loginButton.x = PADDING_X;
-			_loginButton.y = _passwordInput.y + _passwordInput.height + SELL_SPACING_Y;
+			_loginButton.y = _passwordInput.y + _passwordInput.height + CELL_SPACING_Y;
 			_loginButton.enabled = false;
 			this.addChild(_loginButton);
 			
@@ -278,7 +278,7 @@ package views.panels
 		private function submit():void
 		{
 			_loginButton.enabled = false;
-			_connection.login(_loginInput.text, _passwordInput.text, loginResultHandler);
+			_controller.login(_loginInput.text, _passwordInput.text, loginResultHandler);
 		}
 		
 		/**

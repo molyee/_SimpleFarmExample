@@ -23,25 +23,70 @@
 			
 			import mx.collections.ArrayCollection;
 			
+			// -- константы
 			
-			public static const DEBUG:Boolean = true; // триггер состояния
-			
+			/**
+			 * Адрес хоста (сервера)
+			 * 
+			 */
 			public static var HOST:String = null; // ip-адрес сервера
+			
+			/**
+			 * Прослушиваемый порт хоста (сервера)
+			 * 
+			 */
 			public static var PORT:int = 10002; // прослушиваемый порт
+			
+			/**
+			 * Прослушиваемый порт для отдачи статических данных
+			 * 
+			 */
 			public static var STATIC_PORT:int = 10010; // прослушиваемый порт для статики
 			
+			
+			/**
+			 * Сокетный сервер, к которому подключаются клиенты
+			 * 
+			 */
 			private var server:ServerSocket;
 			
+			/**
+			 * Контроллер сервера
+			 * 
+			 */
 			private var controller:ServerConnectionController;
 			
+			/**
+			 * Контроллер соединения с базой данных
+			 * 
+			 */
 			private var dbConnection:DBConnection;
 			
+			/**
+			 * Игровая модель
+			 * 
+			 */
 			private var model:Model;
+			
+			/**
+			 * Список пользователей обрабатываемых сервером
+			 * 
+			 */
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
 			
+			/**
+			 * Контроллер хранилища статических ресурсов
+			 * 
+			 */
 			private var storage:ServerResourceStorage;
 			
+			/**
+			 * Инициализация приложения (точка входа)
+			 * 
+			 * @param event Событие готовности приложения
+			 * 
+			 */
 			public function init(event:Event):void
 			{
 				// добавление финализатора серверного приложения
@@ -68,7 +113,10 @@
 				model.init(controller);
 			}
 			
-			// создание нового слушающего tcp-сервера
+			/**
+			 * Создание нового слушающего tcp-сервера
+			 * 
+			 */
 			private function createServer():void
 			{
 				if (server)	dropServer();
@@ -92,7 +140,10 @@
 				}
 			}
 			
-			// отключение tcp-сервера
+			/**
+			 * Отключение tcp-сервера
+			 * 
+			 */
 			private function dropServer():void
 			{
 				if (!server) return;
@@ -102,7 +153,10 @@
 				server = null;
 			}
 			
-			// запуск работы сервера
+			/**
+			 * Обработчик завершения инициализации модели. Запуск работы сервера
+			 * @private
+			 */
 			private function modelInitHandler(event:Event):void
 			{
 				Logger.instance.writeLine("Model initialized");
@@ -111,11 +165,19 @@
 				createServer();
 			}
 			
+			/**
+			 * Обработчик добавления нового пользователя
+			 * @private
+			 */
 			private function addUserHandler(event:ObjectEvent):void
 			{
 				users.addItem(event.data);
 			}
 			
+			/**
+			 * Обработчик удаления пользователя
+			 * @private
+			 */
 			private function removeUserHandler(event:ObjectEvent):void
 			{
 				var index:int = users.getItemIndex(event.data);
@@ -123,7 +185,10 @@
 				users.removeItemAt(index);
 			}
 			
-			// обработчик события добавления нового клиента
+			/**
+			 * Обработчик события подключения нового клиента
+			 * @private
+			 */
 			private function clientConnectionHandler(event:ServerSocketConnectEvent):void
 			{
 				var socket:Socket = event.socket;
@@ -132,13 +197,19 @@
 				controller.addClient(socket);
 			}
 			
-			// обработчик события закрытия сервера
+			/**
+			 * Обработчик события закрытия слушающего сокетного сервера
+			 * @private
+			 */
 			private function closeServerHandler(event:Event):void
 			{
 				Logger.instance.writeLine("ServerSocket closed");
 			}
 			
-			// обработчик события завершения работы приложения (финализатор)
+			/**
+			 * Обработчик события завершения работы приложения (финализатор)
+			 * @private
+			 */
 			private function exitingHandler(event:Event):void
 			{
 				Logger.instance.writeLine("Finalize application");
@@ -146,13 +217,21 @@
 				dropServer();
 			}
 			
-			// получение времени сервера
+			/**
+			 * Получение времени сервера
+			 * 
+			 */
 			public function getServerTime():int
 			{
 				return getTimer();
 			}
 			
-			// обработчик добавления сообщения в лог
+			/**
+			 * Обработчик добавления сообщения в лог
+			 * 
+			 * @param message Сообщение
+			 * 
+			 */
 			public function logHandler(message:String):void
 			{
 				logArea.appendText(message);

@@ -21,8 +21,15 @@ package database
 	import net.protocols.BitDataProtocol;
 	import net.serialize.UTFBitSerializer;
 
+	/**
+	 * Класс контроллера статических ресурсов
+	 * ...
+	 * @author Alex Sarapulov
+	 */	
 	public class ServerResourceStorage
 	{
+		// ------ встроенные изображения ------
+		
 		[Embed(source="../../media/grass_texture.jpg")]
 		private static const BACKGROUND_TEXTURE:Class;
 		
@@ -64,23 +71,50 @@ package database
 		[Embed(source="../../media/items/sunflower/2.png")]
 		private static const BIG_SUNFLOWER_2:Class;
 		
-		
-		private var _resources:Object = {};
-		private var _xmlResources:Array = ["/config/item_types.xml"];
-		
-		
 		private static const CONFIG_PATH:String = "/config/";
 		private static const MEDIA_PATH:String = "/media/";
 		private static const ITEM_IMAGES_PATH:String = "/media/items/";
 		
+		/**
+		 * Список доступных ресурсов
+		 * @private
+		 */		
+		private var _resources:Object = {};
+		
+		/**
+		 * Список идентификаторов ресурсов, хранящихся в формате .xml
+		 * @private
+		 */		
+		private var _xmlResources:Array = ["/config/item_types.xml"];
+		
+		/**
+		 * Сокетный сервер для раздачи клиентам статических ресурсов
+		 * @private
+		 */		
 		private var _serverSocket:ServerSocket;
 		
+		/**
+		 * Соединения с пользователями
+		 * @private
+		 */		
 		private var _connections:Dictionary;
 		
+		/**
+		 * Сериализатор данных
+		 * @private
+		 */		
 		private var _serializer:UTFBitSerializer;
 		
+		/**
+		 * Конструктор контроллера хранилища
+		 * 
+		 * @param port Прослушиваемый порт
+		 * 
+		 */		
 		public function ServerResourceStorage(port:int)
 		{
+			// -- формирование списка ресурсов изображений
+			
 			_resources[MEDIA_PATH + "background.jpg"] = new BACKGROUND_TEXTURE();
 			
 			_resources[ITEM_IMAGES_PATH + "potato/1.png"] = new POTATO_1();
@@ -104,6 +138,7 @@ package database
 			_resources[ITEM_IMAGES_PATH + "big_sunflower/1.png"] = new BIG_SUNFLOWER_1();
 			_resources[ITEM_IMAGES_PATH + "big_sunflower/2.png"] = new BIG_SUNFLOWER_2();
 			
+			// -- формирование XML-ресурсов
 			
 			var itemTypesXML:XML = new XML(
 				'<?xml version="1.0" encoding="UTF-8" ?>' +
@@ -145,6 +180,8 @@ package database
 			
 			_resources[CONFIG_PATH + "item_types.xml"] = itemTypesXML;
 			
+			// -- инициализация сервера
+			
 			_connections = new Dictionary();
 			
 			_serializer = new UTFBitSerializer();
@@ -158,11 +195,23 @@ package database
 			Logger.instance.writeLine("Static server on TCP:" + port + " port");
 		}
 		
+		/**
+		 * Обработчик события закрытия сервера статики
+		 * 
+		 * @param event Событие закрытия сокетного сервера
+		 * @private
+		 */		
 		private function closeHandler(event:Event):void
 		{
 			Logger.instance.writeLine("Static server closed");
 		}
 		
+		/**
+		 * Обработчик события подключения нового клиента к серверу
+		 * 
+		 * @param event Событие подключения клиента
+		 * @private
+		 */		
 		private function clientConnectHandler(event:ServerSocketConnectEvent):void
 		{
 			Logger.instance.writeLine("Client connected to static storage");
@@ -172,6 +221,12 @@ package database
 			_connections[socket] = bitProtocol;
 		}
 		
+		/**
+		 * Обработчик события разрыва сокетного соединения с клиентом
+		 * 
+		 * @param event Событие разрыва связи с клиентом
+		 * @private
+		 */		
 		private function closeConnectionHandler(event:Event):void
 		{
 			var socket:Socket = event.currentTarget as Socket;
@@ -180,6 +235,14 @@ package database
 			bitProtocol.dispose();
 			delete _connections[socket];
 		}
+		
+		/**
+		 * Передача ресурса клиенту (ответ от сервера)
+		 * 
+		 * @param protocol Протокол соединения клиента и сервера
+		 * @param data Идентификатор или URL-адрес ресурса в битовом формате
+		 * @private
+		 */		
 		private function getRequest(protocol:BitDataProtocol, data:ByteArray):void
 		{
 			var byteArray:ByteArray = new ByteArray();
@@ -199,6 +262,14 @@ package database
 			protocol.send(byteArray);
 		}
 		
+		/**
+		 * Запрос на получение ресурса из локальных классов приложения
+		 * (не удаленный запрос)
+		 * 
+		 * @param path URL-адрес или идентификатор ресурса
+		 * @return Данные ресурса
+		 * 
+		 */		
 		public function getResource(path:String):*
 		{
 			return _resources[path];

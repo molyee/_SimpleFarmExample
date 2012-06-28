@@ -1,12 +1,16 @@
 package views.panels
 {
 	import controllers.ClientConnectionController;
+	
 	import events.ObjectEvent;
+	
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.MouseEvent;
+	
 	import models.Model;
+	
 	import views.controls.buttons.GLabeledButton;
 	import views.map.MapView;
 	

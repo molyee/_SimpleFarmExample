@@ -25,13 +25,13 @@ package views.panels
 		 * Ширина панели
 		 * 
 		 */
-		protected static const PANEL_WIDTH:int = 385;
+		public static const PANEL_WIDTH:int = 385;
 		
 		/**
 		 * Высота панели в открытой форме
 		 * @private
 		 */
-		protected static const PANEL_HEIGHT:int = 100;
+		public static const PANEL_HEIGHT:int = 100;
 		
 		/**
 		 * Высота парели в закрытой форме

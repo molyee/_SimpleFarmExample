@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- build.xml -->
-<project name="FarmClient" basedir="../" default="compile">
+<project name="FarmServer" basedir="../" default="compile">
 	
 	<!-- ============================== -->
 	<!--  Configuration -->
@@ -46,7 +46,7 @@
 	<!-- ======================================= -->
 
 	<target name="compile" depends="init" description="Compile the application .swf file">
-		<mxmlc file="${src.dir}/${application.name}.as" 
+		<mxmlc file="${src.dir}/${application.name}.mxml" 
 			output="${bin.dir}/${swf.file.name}.swf" configname="air"
 			debug="${debug.mode}" incremental="true">
 			
@@ -57,9 +57,9 @@
 			<define name="CONFIG::release" value="${release.mode}"/>
 			
 			<!-- Source paths -->
+			<source-path path-element="${client.src.dir}" />
 			<source-path path-element="${src.dir}" />
-			<source-path path-element="${test.src.dir}" />
-
+			
 			<!-- The TestRunner needs the flexunit libraries in the build/libs folder -->
 			<library-path dir="${build.libs.dir}" append="true">
 				<include name="*.swc" />
@@ -74,7 +74,7 @@
 			<arg line="-storetype pkcs12" />
 			<arg line="-keystore ${out.dir}/FarmCertificate.p12" />
 			<arg line="-storepass restart" />
-			<arg line="${out.dir}/FarmClient.air" />
+			<arg line="${out.dir}/FarmServer.air" />
 			<arg line="${bin.dir}/${swf.file.name}-app.xml" />
 			<arg line="-C ${bin.dir}/${swf.file.name}.swf" />
 		</exec>

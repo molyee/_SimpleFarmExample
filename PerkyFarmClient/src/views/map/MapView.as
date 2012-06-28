@@ -167,7 +167,7 @@ package views.map
 			
 			MapObjectView.MAP_VIEW = this;
 			
-			_indexInserter = new DoubleIndexInserter(Isometric.PADDING_Y, Isometric.MAP_HEIGHT + 2*Isometric.PADDING_Y, "y", 15, DoubleIndexInserter.LINEAR);
+			//_indexInserter = new DoubleIndexInserter(Isometric.PADDING_Y, Isometric.MAP_HEIGHT + 2*Isometric.PADDING_Y, "y", 15, DoubleIndexInserter.LINEAR);
 			
 			_controller = controller;
 			_items = { };
@@ -215,10 +215,6 @@ package views.map
 				else
 					_moving = false;
 			}
-			if (state == NORMAL_STATE)
-				tilesLayer.showCells();
-			else
-				tilesLayer.hideCells();
 			//trace("set map state", state);
 			dispatchEvent(new Event(Event.CHANGE));
 		}
