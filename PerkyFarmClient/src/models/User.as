@@ -81,6 +81,19 @@ package models
 		}
 		
 		/**
+		 * Инициализация объекта
+		 * 
+		 * @param source Данные объекта пользователя
+		 * @private
+		 */		
+		override protected function init(source:Object):void
+		{
+			super.init(source);
+			_numItems = countAndFixItems(items);
+			_numInventoryItems = countAndFixItems(inventory);
+		}
+		
+		/**
 		 * Обновление некоторых свойств извне
 		 * 
 		 * @param	changes Измененные свойства
@@ -91,10 +104,6 @@ package models
 		{
 			// TODO(Alex Sarapulov): добавить валидацию данных (не все можно изменять извне)
 			init(changes);
-			
-			_numItems = countAndFixItems(items);
-			_numInventoryItems = countAndFixItems(inventory);
-			
 			return true;
 		}
 		
@@ -175,7 +184,7 @@ package models
 			if (!checkEmptyPositions(xpos, ypos, itemSize))
 				return false; // место занято
 			var mapLink:Object = map;
-			var i0:int = xpos - int(itemSize[0] / 2) - 1;
+			var i0:int = xpos - int(itemSize[0] / 2);
 			var j0:int = ypos - int(itemSize[1] / 2);
 			var n:int = i0 + itemSize[0];
 			var m:int = j0 + itemSize[1];
@@ -198,7 +207,7 @@ package models
 		{
 			var itemSize:Array = item.size;
 			var mapLink:Object = map;
-			var i0:int = item.x - int(itemSize[0] / 2) - 1;
+			var i0:int = item.x - int(itemSize[0] / 2);
 			var j0:int = item.y - int(itemSize[1] / 2);
 			var n:int = i0 + itemSize[0];
 			var m:int = j0 + itemSize[1];
@@ -221,6 +230,7 @@ package models
 			var item:Item = getItem(itemID);
 			if (!item) // объект не найден
 				return false;
+			clearItemPosition(item);
 			delete items[item.id];
 			item.dispose();
 			_numItems--;
@@ -319,7 +329,8 @@ package models
 		public function checkEmptyPositions(xpos:int, ypos:int, size:Array):Boolean
 		{
 			var mapLink:Object = map;
-			var i0:int = xpos - int(size[0] / 2) - 1;
+			if (!size) size = [1, 1];
+			var i0:int = xpos - int(size[0] / 2);
 			if (i0 < 0) return false; // если вышли за левый край карты
 			var j0:int = ypos - int(size[1] / 2);
 			if (j0 < 0) return false; // если вышли за верхний край карты
@@ -348,7 +359,7 @@ package models
 			// а не хранить ее, чтобы не занимать память
 			_map = { };
 			for each (var item:Item in items) {
-				_map[item.x + "_" + item.y] = item;
+				setItemPosition(item, item.x, item.y);
 			}
 			return _map;
 		}

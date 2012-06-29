@@ -126,7 +126,10 @@ package models
 		 */
 		public function dispose():void
 		{
-			throw("Disposer realization not completed yet");
+			id = null;
+			item_type = null;
+			owner_id = null;
+			level = 0;
 		}
 	}
 }

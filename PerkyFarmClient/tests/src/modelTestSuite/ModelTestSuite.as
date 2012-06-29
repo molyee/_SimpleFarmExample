@@ -1,11 +1,11 @@
 package modelTestSuite
 {
-	import modelTestSuite.cases.ModelTestCase;
+	import modelTestSuite.cases.UserTestCase;
 
 	[Suite]
 	[RunWith("org.flexunit.runners.Suite")]
 	public class ModelTestSuite
 	{
-		public var modelTestCase:ModelTestCase;
+		public var userTestCase:UserTestCase;
 	}
 }
