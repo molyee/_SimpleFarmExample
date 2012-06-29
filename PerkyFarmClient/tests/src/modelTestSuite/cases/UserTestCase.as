@@ -6,6 +6,7 @@ package modelTestSuite.cases
 	import models.ItemType;
 	import models.User;
 	
+	
 	/**
 	 * Класс проверяет работу не только класса User, но и напрямую зависящий класс Item, а
 	 * также частично ItemType
@@ -174,19 +175,37 @@ package modelTestSuite.cases
 		[Test(order=6)]
 		public function testMoveItem():void
 		{
-			Assert.fail("Test method Not yet implemented");
+			var enabled:Boolean;
+			var i:int;
+			var j:int;
+			for (i = 17; i < 24; i++) {
+				for (j = 16; j < 24; j++) {
+					enabled = i == 17 || i == 23 || j == 16 || j == 24;
+					Assert.assertEquals(user.moveItem("4", i, j), enabled);
+				}
+			}
 		}
 		
 		[Test(order=7)]
 		public function testUpgradeItem():void
 		{
-			Assert.fail("Test method Not yet implemented");
+			var itemIDs:Array = user.getAllItemIDs();
+			for each (var id:String in itemIDs) {
+				var item:Item = user.getItem(id);
+				var isLastLevel:Boolean = item.level == item.maxLevel;
+				Assert.assertEquals(user.upgradeItem(id), !isLastLevel);
+			}
 		}
 		
 		[Test(order=8)]
 		public function testUpgradeItems():void
 		{
-			Assert.fail("Test method Not yet implemented");
+			var itemIDs:Array = user.getAllItemIDs();
+			var updatedItemIDs:Array = user.upgradeItems(itemIDs);
+			Assert.assertTrue(updatedItemIDs.indexOf("2") == -1);
+			Assert.assertFalse(updatedItemIDs.indexOf("3") == -1);
+			Assert.assertFalse(updatedItemIDs.indexOf("4") == -1);
+			Assert.assertTrue(updatedItemIDs.indexOf("5") == -1);
 		}
 		
 		[Test(order=9)]

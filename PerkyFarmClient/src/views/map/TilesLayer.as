@@ -323,6 +323,7 @@ package views.map
 		 */
 		public function getObject(xpos:int, ypos:int):*
 		{
+			xpos++;
 			if (xpos < 0 || xpos >= _size || ypos < 0 || ypos >= _size)
 				return null;
 			var object:* = _objectsMap[xpos + "_" + ypos];
