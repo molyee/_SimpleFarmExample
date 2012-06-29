@@ -213,6 +213,7 @@
 			private function exitingHandler(event:Event):void
 			{
 				Logger.instance.writeLine("Finalize application");
+				controller.finalize();
 				dbConnection.finalize();
 				dropServer();
 			}

@@ -97,6 +97,19 @@ package controllers
 		}
 		
 		/**
+		 * Завершение работы контроллера, сохранение данных о пользователях
+		 * 
+		 */		
+		public function finalize():void
+		{
+			for each (var client:Client in clients) {
+				var user:User = client.currentUser;
+				if (!user) continue;
+				saveUserData(user);
+			}
+		}
+		
+		/**
 		 * Получение данных ресурса
 		 * 
 		 * @param url URL-адрес или идентификатор ресурса
