@@ -1,4 +1,4 @@
 simple_farm
 ===========
 
-Simle light farm game
+[TEST] Simple light farm game
